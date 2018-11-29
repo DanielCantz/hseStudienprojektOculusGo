@@ -10,10 +10,10 @@
     <a-scene>
         <a-assets>
             <img id="boxTexture" src="../Assets/Images/cobble.jpg">
-            <audio src="../Assets/Audio/backgroundnoise.wav" autoplay preload></audio>
+            <audio id="neigh" src="../Assets/Audio/thomas.mp3"></audio>
         </a-assets>
 
-        <a-box src="#boxTexture" position="0 2 -5" rotation="45 45 45" scale="2 2 2">
+        <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2">
             <a-animation attribute="position" to="0 2.2 -5" direction="alternate" dur="2000" repeat="indefinite"></a-animation>
             <a-animation attribute="scale" begin="mouseenter" dur="300" to="2.3 2.3 2.3"></a-animation>
             <a-animation attribute="scale" begin="mouseleave" dur="300" to="2 2 2"></a-animation>
@@ -25,6 +25,8 @@
         </a-camera>
 
         <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+
+        <a-sound src="#neigh"  position="0 2 -5" autoplay="true" loop="true" preload="auto" volume="0"></a-sound>
     </a-scene>
 </body>
 
