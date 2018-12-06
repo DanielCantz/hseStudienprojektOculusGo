@@ -21,7 +21,6 @@ install platform-tools android28???
 ```
 
 
-## 
 
 # <a id="head-dmcdt"></a>Debugging mit Chrome DevTools
 
@@ -35,7 +34,7 @@ Um den Chrome Debug modus zu starten öffnen sie Chrome und dücken sie `strg+sh
 In der neuen Ansicht sollten sie die Oculus Go [name] sehen zusammen mit einer Liste an geöffneten Oculus Browser Tabs.
 Bei Auswahl eines dieser Tabs öffnet sich ein neues Fenster mit Ansicht dieses Tabs.
 
-# <a id="head-dmvscls">Debugging mit VS Code Live Server
+# <a id="head-dmvscls"></a>Debugging mit VS Code Live Server
 
 Mit Visual Studio Code ist es möglich mit Hilfe des Plugins Live Server eine Webseite auf einem gewünschten Port zu hosten. Solange sich der Computer mit VS Code Live Server und die Oculus Go im gleichen Netzwerk befinden, kann man diese Webseite auf der Oculus Go aufrufen.
 
@@ -70,12 +69,12 @@ Da sich die Oculus Go nicht im Eduroam Wlan anmelden kann müssen wir, sofern wi
 Öffnen sie die Windows Kommandozeile als Administrator und geben sie folgende Befehlen ein:
 ```
 netsh wlan set hostednetwork mode=allow ssid=NETZWERKNAME key=PASSWORT
-NETSH WLAN start hostednetwork
+netsh wlan start hostednetwork
 ```
 
 Nun können sie die Oculus Go mit dem neuen Netzwerk verbinden.
 
-## <a id="head-vzls">Verbinden zum Live Server
+## <a id="head-vzls"></a>Verbinden zum Live Server
 
 Öffnen sie eine Kommandozeile und geben sie `ipconfig` ein. Suchen sie die ihnen zugehörige ipv4 Adresse für das Netzwerk indem sie und die Oculus Go sich befinden heraus.
 
@@ -84,7 +83,7 @@ In der Oculus Go könenn sie num im Oculus Browser zu der unter dem Live Server 
 
 Wichtig ist hierbei mit `http:// ` zu beginnen. Sofern sich ihre html Datei nich im Top Level Verzeichnis in VS Code befindet müssen sie die übergeordneten Ordner mit in den http-Aufruf angeben.
 
-# <a id="head-dmlvu">Debugging mit Live Video Übertragung
+# <a id="head-dmlvu"></a>Debugging mit Live Video Übertragung
 
 Vorbedingung zur Live Video Übertragung von der Oculus Go zum Debugging Pc ist, dass sie adb tools und entweder vlc Player oder mplayer installiert haben. Aus Performance Gründen wird mplayer empfohlen.
 
