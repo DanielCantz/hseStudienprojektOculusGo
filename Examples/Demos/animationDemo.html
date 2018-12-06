@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <script src="../Assets/dist/aframe-v0.8.2.min.js"></script>
+    <script src="../Assets/dist/aframe-master.min.js"></script>
     <script src="../Assets/dist/aframe-environment-component.min.js"></script>
 
 </head>
@@ -13,11 +13,11 @@
             <audio id="neigh" src="../Assets/Audio/thomas.mp3"></audio>
         </a-assets>
 
-        <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2">
-            <a-animation attribute="position" to="0 2.2 -5" direction="alternate" dur="2000" repeat="indefinite"></a-animation>
-            <a-animation attribute="scale" begin="mouseenter" dur="300" to="2.3 2.3 2.3"></a-animation>
-            <a-animation attribute="scale" begin="mouseleave" dur="300" to="2 2 2"></a-animation>
-            <a-animation attribute="rotation" begin="click" dur="2000" to="360 405 45"></a-animation>
+        <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2"
+            animation__levitate="property: position; to: 0 2.2 -5; dir: alternate; dur: 2000; loop: true;"
+            animation__scaleUp="property: scale; to: 2.3 2.3 2.3; dur: 300; startEvents: mouseenter; easing: easeOutQuad;"
+            animation__scaleDown="property: scale; to: 2 2 2; dur: 300; startEvents: mouseleave; easing: easeOutQuad;"
+            animation__rotate="property: rotation; to: 360 405 45; dur: 2000; startEvents: click; easing: easeInOutQuad;">
         </a-box>
 
         <a-camera position="0 2 0">
