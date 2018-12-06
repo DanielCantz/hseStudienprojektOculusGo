@@ -101,11 +101,13 @@ adb devices //Dies sollte den Deamon service starten und ein device auflisten
 Für mplayer:
 
 ```
-adb exec-out "while true; do screenrecord --bit-rate=2m --output-format=h264 --size 800x600 -; done" | "C:\Program Files (x86)\MPlayer for Windows\mplayer.exe" -demuxer h264es -fps 60 -fs -
+adb -d exec-out "while true; do screenrecord --bit-rate=2m --output-format=h264 --size 800x600 -; done" | "C:\Program Files (x86)\MPlayer for Windows\mplayer.exe" -demuxer h264es -fps 60 -fs -
 ```
+
+Der parameter -fps 60 bestimmt die Frames die mplayer pro Sekunde abspielt. Die Oculus Go zeigt in 60/72/75 fps an. Erhöhen oder Senken der fps Zahl in Mplayer kann die Verzögerung der Videoübertragung positiv oder negativ beeinflussen. Unsere Tests ergaben, dass ein fps Wert von 200 nahezu perfekte live Übertragung ermöglicht, 1000 oder sogar 10000 bringen keine bis kaum sichtbare Verbesserung.
 
 Für vlc Player:
 
 ```
-adb exec-out "while true; do screenrecord --bit-rate=2m --output-format=h264 --time-limit 180 -; done" | vlc --demux h264 -  vlc://quit 
+adb -d exec-out "while true; do screenrecord --bit-rate=2m --output-format=h264 --time-limit 180 -; done" | vlc --demux h264 -  vlc://quit 
 ```
