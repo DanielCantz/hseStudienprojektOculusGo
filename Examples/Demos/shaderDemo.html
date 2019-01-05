@@ -1,0 +1,69 @@
+<!-- Include A-Frame latest master distribution, via RawGit. -->
+<!-- Really should be in <head>; in CodePen body for simple viewing. -->
+<script src="https://rawgit.com/aframevr/aframe/master/dist/aframe-master.min.js"></script>
+
+<!-- Components and shaders go after A-Frame, but before the scene declaration. -->
+<script>
+    const vertexShader = 
+        `
+            varying vec2 vUv;
+
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            }
+        `
+
+    const fragmentShader = 
+    `
+    vec2 hash( vec2 p ){
+    p = vec2( dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));
+    return fract(sin(p)*43758.5453);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+	vec2 uv = fragCoord.xy / iResolution.xy;
+    
+    vec2 position = uv * 2. - 1.;
+    position.x *= iResolution.x / iResolution.y;
+    
+    float scale = 20.;
+    float radius = .1;
+    
+    vec4 color = vec4(0.);
+    
+    vec2 gridPosition = floor(position * scale) / scale;
+    
+    vec2 randomOffset = hash(gridPosition) * 2. - 1.;
+    randomOffset *= .5;
+    
+    vec2 localGridPositionCenter = fract(position * scale) - .5;
+    
+    color.rgb += mix(0., 1., step(length(localGridPositionCenter + randomOffset), radius));
+    
+	fragColor = color;
+}
+    `
+
+    AFRAME.registerShader('grid-glitch', {
+        schema: {
+            color: { type: 'color', is: 'uniform' },
+            timeMsec: { type: 'time', is: 'uniform' }
+        },
+
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+    });
+</script>
+
+<!-- Declaration of the A-Frame scene. -->
+<a-scene>
+    <!-- Black skybox at effectively infinite distance. -->
+    <!-- a-box is used instead of a-sky because it requires less processing than the sphere that a-sky generates. -->
+    <!-- Z scale is inverted so that the inside surface gets the color. -->
+    <a-box width="10000" height="10000" depth="-10000" color="black">
+        <!-- Inside the black skybox, a box behind the previous one, 3 meters ahead. -->
+        <a-box material="shader:grid-glitch; color: blue;" position="0 0 -3"></a-box>
+    </a-box>
+</a-scene>

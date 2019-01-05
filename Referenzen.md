@@ -9,3 +9,5 @@
 - [List of WebGL frameworks - references threejs and a-frame](https://en.wikipedia.org/wiki/List_of_WebGL_frameworks)
 
 - [Live sharing on LAPTOP](https://pixvana.com/sharing-your-oculus-go-screen-on-your-laptop/)
+
+- [Embedding shaders from Shadertoy to THREEJS](https://hackernoon.com/converting-shaders-from-shadertoy-to-threejs-fe17480ed5c6)
