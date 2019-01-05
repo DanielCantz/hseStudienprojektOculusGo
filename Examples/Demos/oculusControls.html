@@ -1,0 +1,91 @@
+<html>
+
+<head>
+    <script src="../Assets/dist/aframe-master.min.js"></script>
+    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
+
+    <script>
+        AFRAME.registerComponent('oculus-go-debug-component', {
+          schema: {
+            color: {default: 'red'}
+          },
+      
+          init: function () {
+            var data = this.data;
+            var el = this.el;  // <a-box>
+            var defaultColor = el.getAttribute('material').color;
+      
+            el.addEventListener('mouseenter', function () {
+              el.setAttribute('color', data.color);
+            });
+      
+            el.addEventListener('mouseleave', function () {
+              el.setAttribute('color', defaultColor);
+            });
+
+            el.addEventListener('triggerdown', function() {
+                el.setAttribute('color', '#00ff00');
+            });
+            el.addEventListener('mousedown', function() {
+                el.setAttribute('color', '#ff0000');
+            });
+          }
+        });
+      </script>
+
+      <script>
+          AFRAME.registerComponent('asdf', {
+              init: function() {
+                  var data = this.data;
+                  var el = this.el;
+
+                  el.addEventListener('triggerdown', function(event) {
+                      console.log("trigger down");
+                      console.log(el);
+                      console.log(event);
+                  });
+
+                  var player = document.querySelector('a-camera');
+
+                  el.addEventListener('triggerup', function(event) {
+                    console.log("trigger up");
+
+                    console.log(player)
+
+                    var angle = player.getAttribute('rotation');
+                    var x = 10 * Math.cos(angle.y * Math.PI / 180)
+                    var y = 10 * Math.sin(angle.y * Math.PI / 180)
+                    var pos = player.getAttribute('position')
+                    pos.x -= y;
+                    pos.z -= x;
+                    document.querySelector('a-camera').setAttribute('position', pos);
+                    console.log(document.querySelector('a-camera'))
+
+                    //   var oldPos = document.querySelector('a-camera').getAttribute('position');
+                    //   console.log(oldPos);
+                    //   oldPos.z += 1;
+                    //   console.log(oldPos);
+                    //   document.querySelector('a-camera').setAttribute('position', oldPos);
+                  });
+              }
+          });
+      </script>
+
+</head>
+
+<body>
+    <a-scene>
+
+        <a-box oculus-go-debug-component color="blue" position="0 2 -5" scale="2 2 2"></a-box>
+
+        <a-camera asdf position="0 2 0">
+            <!-- <a-entity cursor raycaster="far: 20; interval: 1000; objects: .clickable"></a-entity> -->
+        </a-camera>
+        <a-entity laser-controls oculus-go-controls></a-entity>
+        <!-- <a-entity ="hand: right"></a-entity> -->
+
+        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+    </a-scene>
+</body>
+
+</html>
