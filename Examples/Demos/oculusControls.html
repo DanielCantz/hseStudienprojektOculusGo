@@ -1,91 +1,103 @@
 <html>
-
-<head>
+  <head>
     <script src="../Assets/dist/aframe-master.min.js"></script>
     <script src="../Assets/dist/aframe-environment-component.min.js"></script>
 
     <script>
-        AFRAME.registerComponent('oculus-go-debug-component', {
-          schema: {
-            color: {default: 'red'}
-          },
-      
-          init: function () {
-            var data = this.data;
-            var el = this.el;  // <a-box>
-            var defaultColor = el.getAttribute('material').color;
-      
-            el.addEventListener('mouseenter', function () {
-              el.setAttribute('color', data.color);
-            });
-      
-            el.addEventListener('mouseleave', function () {
-              el.setAttribute('color', defaultColor);
-            });
+      AFRAME.registerComponent("oculus-go-debug-component", {
+        schema: {
+          color: { default: "red" },
+          trigger: { default: "green"},
+          mouse: { default: "#ffffff"}
+        },
 
-            el.addEventListener('triggerdown', function() {
-                el.setAttribute('color', '#00ff00');
-            });
-            el.addEventListener('mousedown', function() {
-                el.setAttribute('color', '#ff0000');
-            });
-          }
-        });
-      </script>
+        init: function() {
+          var data = this.data;
+          var el = this.el; // <a-box>
+          var defaultColor = el.getAttribute("material").color;
 
-      <script>
-          AFRAME.registerComponent('asdf', {
-              init: function() {
-                  var data = this.data;
-                  var el = this.el;
-
-                  el.addEventListener('triggerdown', function(event) {
-                      console.log("trigger down");
-                      console.log(el);
-                      console.log(event);
-                  });
-
-                  var player = document.querySelector('a-camera');
-
-                  el.addEventListener('triggerup', function(event) {
-                    console.log("trigger up");
-
-                    console.log(player)
-
-                    var angle = player.getAttribute('rotation');
-                    var x = 10 * Math.cos(angle.y * Math.PI / 180)
-                    var y = 10 * Math.sin(angle.y * Math.PI / 180)
-                    var pos = player.getAttribute('position')
-                    pos.x -= y;
-                    pos.z -= x;
-                    document.querySelector('a-camera').setAttribute('position', pos);
-                    console.log(document.querySelector('a-camera'))
-
-                    //   var oldPos = document.querySelector('a-camera').getAttribute('position');
-                    //   console.log(oldPos);
-                    //   oldPos.z += 1;
-                    //   console.log(oldPos);
-                    //   document.querySelector('a-camera').setAttribute('position', oldPos);
-                  });
-              }
+          el.addEventListener("mouseenter", function() {
+            console.log("Color change");
+            el.setAttribute("color", data.color);
           });
-      </script>
 
-</head>
+          el.addEventListener("mouseleave", function() {
+            console.log("Color change");
+            el.setAttribute("color", defaultColor);
+          });
 
-<body>
+          // el.addEventListener("triggerdown", function() {
+          //   console.log("Color triggerdown");
+          //   el.setAttribute("color", data.trigger);
+          // });
+          el.addEventListener("mousedown", function() {
+            console.log("Color mousedown");
+            el.setAttribute("color", data.mouse);
+          });
+        }
+      });
+    </script>
+
+    <script>
+      AFRAME.registerComponent("camera-movement", {
+        init: function(){
+          var data = this.data;
+          var el = this.el;
+          
+          let player = document.querySelector("a-camera");
+
+          el.addEventListener("trackpaddown", function(event) {
+            console.log("trigger down");
+            let wrapper = document.querySelector("#camera-wrapper");
+            // let wrapper = document.querySelector('a-entity[camera]').components.camera.camera;
+            console.log(wrapper);
+            let angle = player.getAttribute("rotation");
+            let x = 1 * Math.cos((angle.y * Math.PI) / 180);
+            let y = 1 * Math.sin((angle.y * Math.PI) / 180);
+            let pos = wrapper.getAttribute("position");
+            pos.x -= y;
+            pos.z -= x;
+            wrapper.setAttribute("position", pos);
+          });
+        }
+      });
+    </script>
+
+  </head>
+
+  <body>
     <a-scene>
-
-        <a-box oculus-go-debug-component color="blue" position="0 2 -5" scale="2 2 2"></a-box>
-
-        <a-camera asdf position="0 2 0">
-            <!-- <a-entity cursor raycaster="far: 20; interval: 1000; objects: .clickable"></a-entity> -->
+      <a-entity id="camera-wrapper" position="0 0 0">
+        <a-camera>
         </a-camera>
-        <a-entity laser-controls oculus-go-controls></a-entity>
-        <!-- <a-entity ="hand: right"></a-entity> -->
 
-        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+        <a-entity
+          id="leftHand"
+          laser-controls="hand: left"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+        <a-entity
+          camera-movement
+          id="rightHand"
+          laser-controls="hand: right"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+      </a-entity>
+
+      <a-box
+        class="collidable"
+        oculus-go-debug-component
+        color="blue"
+        position="0 2 -5"
+        scale="2 2 2"
+      ></a-box>
+
+      <!-- <a-entity ray-caster="objects: [mixin='box']" laser-controls oculus-go-controls></a-entity> -->
+      <!-- <a-entity ="hand: right"></a-entity> -->
+
+      <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
     </a-scene>
-</body>
-
+  </body>
 </html>
