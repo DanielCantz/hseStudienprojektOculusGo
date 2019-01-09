@@ -55,8 +55,9 @@ void main() {
     <!-- Black skybox at effectively infinite distance. -->
     <!-- a-box is used instead of a-sky because it requires less processing than the sphere that a-sky generates. -->
     <!-- Z scale is inverted so that the inside surface gets the color. -->
-    <a-box width="10000" height="10000" depth="-10000" color="black">
+
         <!-- Inside the black skybox, a box behind the previous one, 3 meters ahead. -->
         <a-box material="shader:grid-glitch; color: blue;" position="0 0 -3"></a-box>
-    </a-box>
+
+    <a-sky material="shader:grid-glitch;"></a-sky>
 </a-scene>
