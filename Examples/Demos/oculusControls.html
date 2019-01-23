@@ -7,8 +7,8 @@
       AFRAME.registerComponent("oculus-go-debug-component", {
         schema: {
           color: { default: "red" },
-          trigger: { default: "green"},
-          mouse: { default: "#ffffff"}
+          trigger: { default: "green" },
+          mouse: { default: "#ffffff" }
         },
 
         init: function() {
@@ -40,36 +40,130 @@
 
     <script>
       AFRAME.registerComponent("camera-movement", {
-        init: function(){
-          var data = this.data;
-          var el = this.el;
-          
-          let player = document.querySelector("a-camera");
+        
+
+        init: function() {
+          let self = this;
+          let data = this.data;
+          let el = this.el;
+          this.data.moving = false;
+          let moving = this.data.moving;
+
+          this.player = document.querySelector("a-camera");
+
+          let axes = [0, 0];
+          this.touchOnly = true;
 
           el.addEventListener("trackpaddown", function(event) {
-            console.log("trigger down");
+            // console.log("trackpad down");
+            //console.log(this.moving);
+            self.data.moving = true;
+
+            // console.log(this.moving);
+          });
+
+          el.addEventListener("trackpadup", function(event) {
+            // console.log("trackpad up");
+            // console.log(event);
+            self.data.moving = false;
+          });
+
+          window.addEventListener("mousedown", function(event){
+            console.log("mousedown");
+            self.data.moving = true;
+            console.log(moving);
+          });
+          window.addEventListener("mouseup", function(event){
+            console.log("mouseup");
+            self.data.moving = false;
+          });
+
+          // el.addEventListener("trackpadchanged", function(event) {
+          //   console.log("trackpad changed");
+          //   if (touchOnly){
+          //     let pad = navigator.getGamepads().item(0);
+          //     let newAxes = pad.axes;
+          //     console.log(axes);
+          //     console.log(newAxes);
+          //   }
+          // });
+
+          // el.addEventListener("trackpadtouchstart", function(event, a, b, c, d){
+          //   console.log("touchpad touch start");
+          //   let pad = navigator.getGamepads().item(0);
+          //   axes = pad.axes;
+          //   touchOnly = true;
+          // });
+
+          // el.addEventListener("trackpadtouchend", function(event){
+          //   console.log("touchpad touch end");
+          //   if (touchOnly){
+          //     let pad = navigator.getGamepads().item(0);
+          //     let newAxes = pad.axes;
+          //     console.log(axes);
+          //     console.log(newAxes);
+          //   }
+          // });
+
+          // // el.addEventListener("triggerchanged", function(event){
+          // //   console.log("trigger changed");
+          // //   console.log(event);
+          // // });
+
+          // el.addEventListener("trackpadmoved", function(event){
+          //   console.log("moved");
+          //   console.log(event);
+          // });
+
+          // el.addEventListener("triggerdown", function(event){
+          //   console.log("trigger down");
+          //   console.log(event);
+          // });
+
+          // el.addEventListener("triggerup", function(event){
+          //   console.log("trigger up");
+          //   console.log(event);
+          // });
+          
+        },
+
+        tick: function() {
+          // console.log(this.data.moving);
+          if(this.data.moving){
+            // console.log("moving");
             let wrapper = document.querySelector("#camera-wrapper");
             // let wrapper = document.querySelector('a-entity[camera]').components.camera.camera;
-            console.log(wrapper);
-            let angle = player.getAttribute("rotation");
-            let x = 1 * Math.cos((angle.y * Math.PI) / 180);
-            let y = 1 * Math.sin((angle.y * Math.PI) / 180);
+            // console.log(wrapper);
+            let angle = this.player.getAttribute("rotation");
+            let x = 0.05 * Math.cos((angle.y * Math.PI) / 180);
+            let y = 0.05 * Math.sin((angle.y * Math.PI) / 180);
             let pos = wrapper.getAttribute("position");
             pos.x -= y;
             pos.z -= x;
             wrapper.setAttribute("position", pos);
+            this.touchOnly = false;
+          }
+        }
+      });
+
+      AFRAME.registerComponent("mover", {
+        init: function() {
+          let data = this.data;
+          let el = this.el;
+          el.addEventListener("mousedown", function(event) {
+            console.log("a");
           });
         }
       });
-    </script>
 
+      
+    </script>
   </head>
 
   <body>
     <a-scene>
       <a-entity id="camera-wrapper" position="0 0 0">
-        <a-camera>
-        </a-camera>
+        <a-camera> </a-camera>
 
         <a-entity
           camera-movement
