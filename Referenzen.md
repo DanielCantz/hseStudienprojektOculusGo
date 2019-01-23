@@ -11,3 +11,5 @@
 - [Live sharing on LAPTOP](https://pixvana.com/sharing-your-oculus-go-screen-on-your-laptop/)
 
 - [Embedding shaders from Shadertoy to THREEJS](https://hackernoon.com/converting-shaders-from-shadertoy-to-threejs-fe17480ed5c6)
+
+- [Shader toArfame step by Step](https://stackoverflow.com/questions/24820004/how-to-implement-a-shadertoy-shader-in-three-js/37508079#37508079)
