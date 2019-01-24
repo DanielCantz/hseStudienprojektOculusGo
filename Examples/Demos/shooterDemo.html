@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <script src="../Assets/dist/aframe-master.min.js"></script>
+    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
+    <script src="../Assets/src/components/oculus-go-controls.js"></script>
+    <script>
+        AFRAME.registerComponent('bullet', {
+            schema: {
+                color: { default: '#f00' },
+                size: { default: 0.2 },
+                speed: { default: 0.1 },
+            },
+
+            init: function () {
+                let el = this.el;
+                let data = this.data;
+                let camera = document.querySelector("#camera");
+                let initPos = camera.getAttribute('position');
+                //console.log(initPos);
+
+                el.setAttribute("color", data.color);
+                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
+                el.setAttribute('position', initPos);
+                //console.log(el.getAttribute('position'));
+            },
+
+            tick: function () {
+                let el = this.el;
+                let data = this.data;
+                let actPos = el.getAttribute('position');
+
+                el.setAttribute('position', {x: actPos.x, y: actPos.y, z: actPos.z - data.speed});
+                let camera = document.querySelector("#camera");
+
+            }
+        });
+
+
+        document.querySelector('#leftHand').addEventListener('triggerdown', function(event) {
+            console.log("click");
+        });
+
+    </script>
+</head>
+
+<body>
+    <a-scene>
+        <a-assets>
+            <img id="boxTexture" src="../Assets/Images/cobble.jpg">
+            <audio id="neigh" src="../Assets/Audio/thomas.mp3"></audio>
+        </a-assets>
+        <a-camera id="camera" position="0 2 0"></a-camera>
+        <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: [mixin='box']"></a-entity>
+        <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: [mixin='box']" line="color: #118A7E"></a-entity>
+
+        <a-sphere bullet></a-sphere>
+
+
+
+        </a-camera>
+
+
+
+        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+        <a-sound src="#neigh" position="0 2 -5" autoplay="true" loop="true" preload="auto" volume="10"></a-sound>
+    </a-scene>
+</body>
+
+</html>

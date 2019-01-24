@@ -153,9 +153,9 @@ const fragmentShader3 =
     <!-- Z scale is inverted so that the inside surface gets the color. -->
 
     <!-- Inside the black skybox, a box behind the previous one, 3 meters ahead. -->
-    <a-box material="shader:test" position="0 0 -3"></a-box>
+    <a-box material="shader:test" position="-2 1 -3" scale="2 2 2"></a-box>
 
-    <a-box material="shader:test2" position="2 0 -3"></a-box>
+    <a-box material="shader:grid-glitch; color: blue" position="2 1 -3" scale="2 2 2"></a-box>
 
-    <a-sky radius="5000" material="shader:grid-glitch; color: blue"></a-sky>
+    <a-sky radius="5000"material="shader:test2"></a-sky>
 </a-scene>
