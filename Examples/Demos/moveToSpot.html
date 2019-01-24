@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <script src="../Assets/dist/aframe-master.min.js"></script>
+    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
+
+    <script>
+      AFRAME.registerComponent("oculus-go-debug-component", {
+        schema: {
+          color: { default: "red" },
+          trigger: { default: "green" },
+          mouse: { default: "#ffffff" }
+        },
+
+        init: function() {
+          var data = this.data;
+          var el = this.el; // <a-box>
+          var defaultColor = el.getAttribute("material").color;
+
+          el.addEventListener("mouseenter", function() {
+            console.log("Color change");
+            el.setAttribute("color", data.color);
+          });
+
+          el.addEventListener("mouseleave", function() {
+            console.log("Color change");
+            el.setAttribute("color", defaultColor);
+          });
+
+          // el.addEventListener("triggerdown", function() {
+          //   console.log("Color triggerdown");
+          //   el.setAttribute("color", data.trigger);
+          // });
+          el.addEventListener("mousedown", function() {
+            console.log("Color mousedown");
+            el.setAttribute("color", data.mouse);
+          });
+        }
+      });
+    </script>
+
+    <script>
+
+      AFRAME.registerComponent("spot", {
+        init: function() {
+          let data = this.data;
+          let el = this.el;
+          el.addEventListener("mousedown", function(event) {
+            console.log("bla");
+            let wrapper = document.querySelector("#camera-wrapper");
+            let newPos = this.getAttribute("position");
+            wrapper.setAttribute("position", newPos);
+
+          });
+        }
+      });
+
+      
+    </script>
+  </head>
+
+  <body>
+    <a-scene>
+      <a-entity id="camera-wrapper" position="0 0 0">
+        <a-camera> </a-camera>
+
+        <a-entity
+          id="leftHand"
+          laser-controls="hand: left"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+        <a-entity
+          id="rightHand"
+          laser-controls="hand: right"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+      </a-entity>
+
+      <a-box
+        class="collidable"
+        oculus-go-debug-component
+        color="blue"
+        position="0 2 -5"
+        scale="2 2 2"
+      ></a-box>
+
+
+      <a-sphere position="-5 2 15" scale="1 1 1" class="collidable" spot></a-sphere>
+      <a-sphere position="15 2 -5" scale="1 1 1" class="collidable" spot></a-sphere>
+      <a-sphere position="0 2 -15" scale="1 1 1" class="collidable" spot></a-sphere>
+
+      <!-- <a-entity ray-caster="objects: [mixin='box']" laser-controls oculus-go-controls></a-entity> -->
+      <!-- <a-entity ="hand: right"></a-entity> -->
+
+      <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+    </a-scene>
+  </body>
+</html>
