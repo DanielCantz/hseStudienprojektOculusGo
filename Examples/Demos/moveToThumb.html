@@ -155,6 +155,27 @@
             let axes = pad.axes;
             console.log(axes)
             let pos = wrapper.getAttribute("position");
+
+            let vz = 0;
+            let vx = 0;
+
+            let deadzone;
+
+            if (vec3d.z > deadzone) {
+              vz = 1;
+            }
+
+            if (vec3d.z < -deadzone){
+              vz = -1;
+            }
+
+            if (vec3d.x > deadzone){
+              vx = 1;
+            }
+
+            if (vec3d.x < -deadzone){
+              vx = -1;
+            }
             
             pos.x -= vec3d.z * 0.1 * -axes[0] - vec3d.x * 0.1 * axes[1];
             pos.z -= vec3d.x * 0.1 * axes[0] + vec3d.z * 0.1 * -axes[1];
