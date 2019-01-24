@@ -15,7 +15,16 @@
                 this.data.moving = false;
                 let moving = this.data.moving;
 
-                this.player = document.querySelector("a-camera");
+                let hands = document.querySelectorAll('[line]');
+                let right = hands[1];
+
+                console.log(right);
+                // let line = right.components.line;
+                // console.log(line);
+                // this.player = right.components.line.line;
+
+                this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
+                console.log(this.player);
 
                 let axes = [0, 0];
                 this.touchOnly = true;
@@ -24,6 +33,8 @@
                     // console.log("trackpad down");
                     //console.log(this.moving);
                     self.data.moving = true;
+
+
 
                     // console.log(this.moving);
                 });
@@ -35,14 +46,12 @@
                 });
 
                 window.addEventListener("mousedown", function (event) {
-                    console.log("mousedown");
-                    self.data.moving = true;
-                    console.log(moving);
+                    let newBullet = document.createElement('a-sphere');
+                    newBullet.setAttribute('bullet', null); 
+                    let scene = document.querySelector('a-scene');
+                    scene.appendChild(newBullet);
                 });
-                window.addEventListener("mouseup", function (event) {
-                    console.log("mouseup");
-                    self.data.moving = false;
-                });
+
 
                 // el.addEventListener("trackpadchanged", function(event) {
                 //   console.log("trackpad changed");
@@ -97,15 +106,46 @@
                 // console.log(this.data.moving);
                 if (this.data.moving) {
                     // console.log("moving");
+
+                    let hands = document.querySelectorAll('[raycaster]');
+                    let right = hands[1];
+                    let dir = right.object3D.getWorldDirection();
+                    let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
+                    vec3d.normalize();
+
+                    // this.player = right.components.line.line;
                     let wrapper = document.querySelector("#camera-wrapper");
-                    // let wrapper = document.querySelector('a-entity[camera]').components.camera.camera;
-                    // console.log(wrapper);
-                    let angle = this.player.getAttribute("rotation");
-                    let x = 0.05 * Math.cos((angle.y * Math.PI) / 180);
-                    let y = 0.05 * Math.sin((angle.y * Math.PI) / 180);
+                    let pad = navigator.getGamepads().item(0);
+                    let axes = pad.axes;
+                    console.log(axes)
                     let pos = wrapper.getAttribute("position");
-                    pos.x -= y;
-                    pos.z -= x;
+
+                    let vz = 0;
+                    let vx = 0;
+
+                    let deadzone;
+
+                    if (vec3d.z > deadzone) {
+                        vz = 1;
+                    }
+
+                    if (vec3d.z < -deadzone) {
+                        vz = -1;
+                    }
+
+                    if (vec3d.x > deadzone) {
+                        vx = 1;
+                    }
+
+                    if (vec3d.x < -deadzone) {
+                        vx = -1;
+                    }
+
+                    pos.x -= vec3d.z * 0.1 * -axes[0] - vec3d.x * 0.1 * axes[1];
+                    pos.z -= vec3d.x * 0.1 * axes[0] + vec3d.z * 0.1 * -axes[1];
+
+                    // pos.x -= axes[0]>0.5 || axes[0]<-0.5 ? vec3d.x * 0.1 : 0;
+                    // pos.z -= axes[1]>0.5 || axes[1]<-0.5 ? vec3d.z * 0.1 : 0;
                     wrapper.setAttribute("position", pos);
                     this.touchOnly = false;
                 }
@@ -116,20 +156,20 @@
         AFRAME.registerComponent('bullet', {
             schema: {
                 color: { default: '#f00' },
-                size: { default: 0.2 },
+                size: { default: 0.05 },
                 speed: { default: 0.1 },
             },
 
             init: function () {
                 let el = this.el;
                 let data = this.data;
-                let camera = document.querySelector("#camera");
+                let camera = document.querySelector("#camera-wrapper");
                 let initPos = camera.getAttribute('position');
                 //console.log(initPos);
 
                 el.setAttribute("color", data.color);
                 el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
-                el.setAttribute('position', initPos);
+                el.setAttribute('position', { x: initPos.x, y: initPos.y + 1.5, z: initPos.z });
                 //console.log(el.getAttribute('position'));
             },
 
@@ -142,11 +182,6 @@
                 let camera = document.querySelector("#camera");
 
             }
-        });
-
-
-        document.querySelector('#leftHand').addEventListener('triggerdown', function (event) {
-            console.log("click");
         });
 
     </script>
