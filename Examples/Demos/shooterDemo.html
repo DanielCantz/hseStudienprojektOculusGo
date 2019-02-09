@@ -5,6 +5,7 @@
     <script src="../Assets/dist/aframe-environment-component.min.js"></script>
     <script src="../Assets/src/components/oculus-go-controls.js"></script>
     <script>
+        let checker = true;
         AFRAME.registerComponent("camera-movement", {
 
 
@@ -46,10 +47,14 @@
                 });
 
                 window.addEventListener("mousedown", function (event) {
-                    let newBullet = document.createElement('a-sphere');
-                    newBullet.setAttribute('bullet', null); 
-                    let scene = document.querySelector('a-scene');
-                    scene.appendChild(newBullet);
+                    if (checker) {
+                        let newBullet = document.createElement('a-sphere');
+                        newBullet.setAttribute('bullet', null);
+                        let scene = document.querySelector('a-scene');
+                        scene.appendChild(newBullet);
+                    }
+                    checker ? checker = false : checker = true;
+
                 });
 
 
@@ -157,30 +162,49 @@
             schema: {
                 color: { default: '#f00' },
                 size: { default: 0.05 },
-                speed: { default: 0.1 },
+                speed: { default: 1 },
+                ttl: { default: 200 }
             },
 
             init: function () {
                 let el = this.el;
                 let data = this.data;
-                let camera = document.querySelector("#camera-wrapper");
-                let initPos = camera.getAttribute('position');
-                //console.log(initPos);
 
+                //let camera = document.querySelector("#controller");
+                //let initPos = camera.getAttribute('position');
+                let hands = document.querySelectorAll('[raycaster]');
+                let left = hands[0];
+                let pos = left.object3D.getWorldPosition();
+                let rot = left.object3D.getWorldDirection();
+
+                let rotNew = new THREE.Vector3(rot.x, rot.y, rot.z);
+                rotNew.normalize();
+                //console.log(initPos);
                 el.setAttribute("color", data.color);
                 el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
-                el.setAttribute('position', { x: initPos.x, y: initPos.y + 1.5, z: initPos.z });
+                el.setAttribute('position', { x: pos.x, y: pos.y, z: pos.z });
+                el.setAttribute('rotation', { x: rotNew.x, y: rotNew.y, z: rotNew.z });
                 //console.log(el.getAttribute('position'));
             },
 
             tick: function () {
                 let el = this.el;
                 let data = this.data;
+
+                if (data.ttl == 0) {
+                    let scene = document.querySelector('a-scene');
+                    el.parentNode.removeChild(el);
+
+                }
+
                 let actPos = el.getAttribute('position');
+                let rot = el.getAttribute('rotation');
 
-                el.setAttribute('position', { x: actPos.x, y: actPos.y, z: actPos.z - data.speed });
+                el.setAttribute('position', { x: actPos.x - rot.x * data.speed, y: actPos.y - rot.y * data.speed, z: actPos.z - rot.z * data.speed });
+
+
                 let camera = document.querySelector("#camera");
-
+                data.ttl -= 1
             }
         });
 
@@ -198,16 +222,10 @@
         <a-entity id="camera-wrapper" position="0 0 0">
             <a-camera id="camera" position="0 2 0"></a-camera>
 
-            <a-entity camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
+            <a-entity id="controller" camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable"
+                line="color: #118A7E"></a-entity>
             <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
         </a-entity>
-
-        <a-sphere bullet></a-sphere>
-
-
-
-
-
 
         <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
         <a-sound src="#neigh" position="0 2 -5" autoplay="true" loop="true" preload="auto" volume="10"></a-sound>
