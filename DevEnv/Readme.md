@@ -116,3 +116,21 @@ Für vlc Player:
 ```
 adb -d exec-out "while true; do screenrecord --bit-rate=2m --output-format=h264 --time-limit 180 -; done" | vlc --demux h264 -  vlc://quit 
 ```
+
+# MAC Adresse herausfinden
+
+Für die Verbindung zu manchen WLAN Netzwerken (z.B. Hochschulnetzwerk) ist es notwendig die MAC Adresse eines Geräts auf eine sogenannte Whitelist zu setzen. Dies muss zwar das jeweilige Rechenzentrum übernehmen, das Herausfinden der MAC Adresse kann jedoch mit folgendem Befehl selbst getätigt werden.
+Vorraussetzung: Oculus Go via USB verbunden und ADB Tools installiert.
+
+```
+adb -d exec-out ip link
+```
+
+In der Antwort steht unter dem Punkt wlan0 etwa folgendes
+
+```
+<BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DORMANT group default qlen 3000
+    link/ether aa:bb:cc:dd:ee:ff brd ff:ff:ff:ff:ff:ff
+```
+
+Hier als `aa:bb:cc:dd:ee:ff` gekennzeichnet ist die gesuchte MAC Adresse.
