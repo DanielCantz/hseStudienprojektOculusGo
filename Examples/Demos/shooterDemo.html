@@ -1,0 +1,288 @@
+<html>
+
+<head>
+    <script src="../Assets/dist/aframe-master.min.js"></script>
+    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
+    <script src="../Assets/src/components/oculus-go-controls.js"></script>
+    <script>
+        let checker = true;
+        AFRAME.registerComponent("camera-movement", {
+
+
+            init: function () {
+                let self = this;
+                let data = this.data;
+                let el = this.el;
+                this.data.moving = false;
+                let moving = this.data.moving;
+
+                let hands = document.querySelectorAll('[line]');
+                let right = hands[1];
+
+                console.log(right);
+                // let line = right.components.line;
+                // console.log(line);
+                // this.player = right.components.line.line;
+
+                this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
+                console.log(this.player);
+
+                let axes = [0, 0];
+                this.touchOnly = true;
+
+                el.addEventListener("trackpaddown", function (event) {
+                    // console.log("trackpad down");
+                    //console.log(this.moving);
+                    self.data.moving = true;
+
+
+
+                    // console.log(this.moving);
+                });
+
+                el.addEventListener("trackpadup", function (event) {
+                    // console.log("trackpad up");
+                    // console.log(event);
+                    self.data.moving = false;
+                });
+
+                window.addEventListener("mousedown", function (event) {
+                    if (checker) {
+                        let newBullet = document.createElement('a-sphere');
+                        newBullet.setAttribute('bullet', null);
+                        let scene = document.querySelector('a-scene');
+                        scene.appendChild(newBullet);
+                    }
+                    checker ? checker = false : checker = true;
+
+                });
+
+
+                // el.addEventListener("trackpadchanged", function(event) {
+                //   console.log("trackpad changed");
+                //   if (touchOnly){
+                //     let pad = navigator.getGamepads().item(0);
+                //     let newAxes = pad.axes;
+                //     console.log(axes);
+                //     console.log(newAxes);
+                //   }
+                // });
+
+                // el.addEventListener("trackpadtouchstart", function(event, a, b, c, d){
+                //   console.log("touchpad touch start");
+                //   let pad = navigator.getGamepads().item(0);
+                //   axes = pad.axes;
+                //   touchOnly = true;
+                // });
+
+                // el.addEventListener("trackpadtouchend", function(event){
+                //   console.log("touchpad touch end");
+                //   if (touchOnly){
+                //     let pad = navigator.getGamepads().item(0);
+                //     let newAxes = pad.axes;
+                //     console.log(axes);
+                //     console.log(newAxes);
+                //   }
+                // });
+
+                // // el.addEventListener("triggerchanged", function(event){
+                // //   console.log("trigger changed");
+                // //   console.log(event);
+                // // });
+
+                // el.addEventListener("trackpadmoved", function(event){
+                //   console.log("moved");
+                //   console.log(event);
+                // });
+
+                // el.addEventListener("triggerdown", function(event){
+                //   console.log("trigger down");
+                //   console.log(event);
+                // });
+
+                // el.addEventListener("triggerup", function(event){
+                //   console.log("trigger up");
+                //   console.log(event);
+                // });
+
+            },
+
+            tick: function () {
+                // console.log(this.data.moving);
+                if (this.data.moving) {
+                    // console.log("moving");
+
+                    let hands = document.querySelectorAll('[raycaster]');
+                    let right = hands[1];
+                    let dir = right.object3D.getWorldDirection();
+                    let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
+                    vec3d.normalize();
+
+                    // this.player = right.components.line.line;
+                    let wrapper = document.querySelector("#camera-wrapper");
+                    let pad = navigator.getGamepads().item(0);
+                    let axes = pad.axes;
+                    console.log(axes)
+                    let pos = wrapper.getAttribute("position");
+
+                    let vz = 0;
+                    let vx = 0;
+
+                    let deadzone = 0.3;
+
+                    if (axes[1] > deadzone) {
+                        vz = 1;
+                    }
+
+                    if (axes[1] < -deadzone) {
+                        vz = -1;
+                    }
+
+                    if (axes[0] > deadzone) {
+                        vx = 1;
+                    }
+
+                    if (axes[0] < -deadzone) {
+                        vx = -1;
+                    }
+
+                    pos.x -= vec3d.z * 0.1 * -vx - vec3d.x * 0.1 * vz;
+                    pos.z -= vec3d.x * 0.1 * vx + vec3d.z * 0.1 * -vz;
+
+                    // pos.x -= axes[0]>0.5 || axes[0]<-0.5 ? vec3d.x * 0.1 : 0;
+                    // pos.z -= axes[1]>0.5 || axes[1]<-0.5 ? vec3d.z * 0.1 : 0;
+                    wrapper.setAttribute("position", pos);
+                    this.touchOnly = false;
+                }
+            }
+        });
+    </script>
+    <script>
+        AFRAME.registerComponent('bullet', {
+            schema: {
+                color: { default: '#f00' },
+                size: { default: 0.05 },
+                speed: { default: 1 },
+                ttl: { default: 200 }
+            },
+
+            init: function () {
+                let el = this.el;
+                let data = this.data;
+
+                //let camera = document.querySelector("#controller");
+                //let initPos = camera.getAttribute('position');
+                let hands = document.querySelectorAll('[raycaster]');
+                let left = hands[0];
+                let pos = left.object3D.getWorldPosition();
+                let rot = left.object3D.getWorldDirection();
+
+                let rotNew = new THREE.Vector3(rot.x, rot.y, rot.z);
+                rotNew.normalize();
+                //console.log(initPos);
+                el.setAttribute("color", data.color);
+                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
+                el.setAttribute('position', { x: pos.x, y: pos.y, z: pos.z });
+                el.setAttribute('rotation', { x: rotNew.x, y: rotNew.y, z: rotNew.z });
+                el.setAttribute('class', 'collider');
+                //console.log(el.getAttribute('position'));
+            },
+
+            tick: function () {
+                let el = this.el;
+                let data = this.data;
+
+                if (data.ttl == 0) {
+                    let scene = document.querySelector('a-scene');
+                    el.parentNode.removeChild(el);
+
+                }
+
+                let actPos = el.getAttribute('position');
+                let rot = el.getAttribute('rotation');
+
+                el.setAttribute('position', { x: actPos.x - rot.x * data.speed, y: actPos.y - rot.y * data.speed, z: actPos.z - rot.z * data.speed });
+
+
+                let camera = document.querySelector("#camera");
+                data.ttl -= 1
+            }
+        });
+
+
+        AFRAME.registerComponent('target', {
+            schema: {
+                color: { default: '#f00' },
+                size: { default: 2 },
+            },
+
+            init: function () {
+                let el = this.el;
+                let data = this.data;
+
+                el.setAttribute("color", data.color);
+                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
+                el.setAttribute("position", { x: -10 + Math.random() * 20, y: 1 + Math.random() * 5, z: -Math.random() * 20 });
+
+            },
+
+            tick: function () {
+                let el = this.el;
+                let data = this.data;
+
+                let collidables = document.getElementsByClassName("collider");
+                for (let x = 0; x < collidables.length; x++) {
+                    let colPos = collidables[x].getAttribute('position');
+                    let tarPos = el.getAttribute('position');
+                    if (colPos.x > tarPos.x - data.size / 2 && colPos.x < tarPos.x + data.size / 2) {
+                        if (colPos.y > tarPos.y - data.size / 2 && colPos.y < tarPos.y + data.size / 2) {
+                            if (colPos.z > tarPos.z - data.size / 2 && colPos.z < tarPos.z + data.size / 2) {
+                                collidables[x].parentNode.removeChild(collidables[x]);
+                                this.recolor();
+                                this.relocate();
+                            }
+                        }
+                    }
+                }
+
+            },
+
+            relocate: function () {
+                let el = this.el;
+                let data = this.data;
+
+                el.setAttribute("position", { x: -10 + Math.random() * 20, y: 1 + Math.random() * 5, z: -Math.random() * 20 });
+            },
+
+            recolor: function () {
+                let el = this.el;
+                let data = this.data;
+
+                let letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+
+                el.setAttribute("color", color);
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <a-scene>
+        <a-entity id="camera-wrapper" position="0 0 0">
+            <a-camera id="camera" position="0 2 0"></a-camera>
+
+            <a-entity id="controller" camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable"
+                line="color: #118A7E"></a-entity>
+            <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
+        </a-entity>
+
+        <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+        <a-box target></a-box>
+    </a-scene>
+</body>
+
+</html>

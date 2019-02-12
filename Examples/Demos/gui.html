@@ -1,0 +1,149 @@
+<html>
+  <head>
+    <script src="https://aframe.io/aframe/dist/aframe-master.min.js"></script>
+    <!-- <script src="../Assets/dist/aframe-master.min.js"></script> -->
+    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
+
+    <script>
+      AFRAME.registerComponent("oculus-go-debug-component", {
+        schema: {
+          color: { default: "red" },
+          trigger: { default: "green" },
+          mouse: { default: "#ffffff" }
+        },
+
+        init: function() {
+          var data = this.data;
+          var el = this.el; // <a-box>
+          var defaultColor = el.getAttribute("material").color;
+
+          el.addEventListener("mouseenter", function() {
+            console.log("Color change");
+            el.setAttribute("color", data.color);
+          });
+
+          el.addEventListener("mouseleave", function() {
+            console.log("Color change");
+            el.setAttribute("color", defaultColor);
+          });
+
+          // el.addEventListener("triggerdown", function() {
+          //   console.log("Color triggerdown");
+          //   el.setAttribute("color", data.trigger);
+          // });
+          el.addEventListener("mousedown", function() {
+            console.log("Color mousedown");
+            el.setAttribute("color", data.mouse);
+          });
+        }
+      });
+    </script>
+
+    <script>
+
+      AFRAME.registerComponent("spot", {
+        schema: {
+          number: {type: 'string', default: "0"}
+        },
+
+        init: function() {
+          let data = this.data;
+          let el = this.el;
+          el.addEventListener("mousedown", function(event) {
+            console.log("bla");
+            let self = this;
+            let wrapper = document.querySelector("#camera-wrapper");
+            let newPos = self.getAttribute("position");
+            newPos.y = 0;
+            wrapper.setAttribute("position", newPos);
+            // this.setAttribute("visible", false);
+
+            //Reset visibility of spheres
+            let spots = document.querySelectorAll(".spot");
+            spots.forEach(function(s) {
+              if (s === self) {
+                s.setAttribute("visible", false);
+              } else {
+                s.setAttribute("visible", true);
+              }
+            });
+
+            //Tell on which spot you are on
+            let text = document.querySelector("#gui-text-spot");
+            
+            console.log(data);
+            text.setAttribute("value", "You are at Spot: " + data.number);
+          });
+        }
+      });
+
+      
+    </script>
+  </head>
+
+  <body>
+    <a-scene>
+      <a-entity id="camera-wrapper" position="0 0 0">
+        <a-camera>
+          <!-- position put it close-->
+          <!-- scale make it small to fit in your view -->
+          <a-entity position="0 -0.006 -0.5" scale="1 1 1">
+            <a-plane id="gui-plane" position="0 -0.25 0" color="red" scale="0.6 0.2 0.01" opacity="0.5">
+              <a-text id="gui-text" value="Hello Player!" position="-0.5 0.4 0" scale="0.5 0.5"></a-text>
+              <a-text id="gui-text-spot" value="You are at Spot: 0" position="-0.5 0.2 0" scale="0.5 0.5"></a-text>
+            </a-plane>
+          </a-entity>
+        </a-camera>
+
+        <a-entity
+          id="leftHand"
+          laser-controls="hand: left"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+        <a-entity
+          id="rightHand"
+          laser-controls="hand: right"
+          raycaster="objects: .collidable"
+          line="color: #118A7E"
+        ></a-entity>
+      </a-entity>
+
+      <a-box
+        class="collidable"
+        oculus-go-debug-component
+        color="blue"
+        position="0 2 -5"
+        scale="2 2 2"
+        rotation="0 0 0"
+      >
+      
+    </a-box>
+
+
+      <a-sphere position="-5 2 15" scale="1 1 1" class="collidable spot" spot="number: 1">
+        <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
+          <a-text id="spot-1" color="#FF0" position="-1 0 0" value="1" scale="10 10 10"></a-text>
+          <a-text id="spot-11" color="#FF0" position="1 0 0" rotation="0 180 0" value="1" scale="10 10 10"></a-text>
+        </a-entity>
+      </a-sphere>
+      <a-sphere position="15 2 -5" scale="1 1 1" class="collidable spot" spot="number: 2">
+          <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
+              <a-text id="spot-2" color="#FF0" position="-1 0 0" value="2" scale="10 10 10"></a-text>
+              <a-text id="spot-22" color="#FF0" position="1 0 0" rotation="0 180 0" value="2" scale="10 10 10"></a-text>
+            </a-entity>
+      </a-sphere>
+      <a-sphere position="0 2 -15" scale="1 1 1" class="collidable spot" spot="number: 3">
+          <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
+              <a-text id="spot-3" color="#FF0" position="-1 0 0" value="3" scale="10 10 10"></a-text>
+              <a-text id="spot-33" color="#FF0" position="1 0 0" rotation="0 180 0" value="3" scale="10 10 10"></a-text>
+            </a-entity>
+        </a-sphere>
+
+      <!-- <a-entity ray-caster="objects: [mixin='box']" laser-controls oculus-go-controls></a-entity> -->
+      <!-- <a-entity ="hand: right"></a-entity> -->
+
+      <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+    </a-scene>
+  </body>
+</html>
