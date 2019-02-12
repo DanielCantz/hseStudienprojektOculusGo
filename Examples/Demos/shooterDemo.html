@@ -5,10 +5,12 @@
     <script src="../Assets/dist/aframe-environment-component.min.js"></script>
     <script src="../Assets/src/components/oculus-go-controls.js"></script>
     <script>
+        //checker boolean variable used for mousedown event in camera-movement component
         let checker = true;
+
+        //refer to moveToThumb for movement documentation
+        //for bullet generation see mousedown event (line 38)
         AFRAME.registerComponent("camera-movement", {
-
-
             init: function () {
                 let self = this;
                 let data = this.data;
@@ -19,110 +21,49 @@
                 let hands = document.querySelectorAll('[line]');
                 let right = hands[1];
 
-                console.log(right);
-                // let line = right.components.line;
-                // console.log(line);
-                // this.player = right.components.line.line;
-
                 this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
-                console.log(this.player);
 
                 let axes = [0, 0];
                 this.touchOnly = true;
 
                 el.addEventListener("trackpaddown", function (event) {
-                    // console.log("trackpad down");
-                    //console.log(this.moving);
                     self.data.moving = true;
-
-
-
-                    // console.log(this.moving);
                 });
 
                 el.addEventListener("trackpadup", function (event) {
-                    // console.log("trackpad up");
-                    // console.log(event);
                     self.data.moving = false;
                 });
 
+                //event to generate bullets by pressing the trigger on OculusGO
                 window.addEventListener("mousedown", function (event) {
+                    //by pressing the trigger on OculusGO, the event is triggered twice. Checker is used to trigger the event every 2nd time.
                     if (checker) {
+                        //create new sphere with the attribute 'bullet'
                         let newBullet = document.createElement('a-sphere');
                         newBullet.setAttribute('bullet', null);
+
+                        //append new bullet to the scene
                         let scene = document.querySelector('a-scene');
                         scene.appendChild(newBullet);
                     }
+
+                    //changes checker value between true and false, every time it is run
                     checker ? checker = false : checker = true;
-
                 });
-
-
-                // el.addEventListener("trackpadchanged", function(event) {
-                //   console.log("trackpad changed");
-                //   if (touchOnly){
-                //     let pad = navigator.getGamepads().item(0);
-                //     let newAxes = pad.axes;
-                //     console.log(axes);
-                //     console.log(newAxes);
-                //   }
-                // });
-
-                // el.addEventListener("trackpadtouchstart", function(event, a, b, c, d){
-                //   console.log("touchpad touch start");
-                //   let pad = navigator.getGamepads().item(0);
-                //   axes = pad.axes;
-                //   touchOnly = true;
-                // });
-
-                // el.addEventListener("trackpadtouchend", function(event){
-                //   console.log("touchpad touch end");
-                //   if (touchOnly){
-                //     let pad = navigator.getGamepads().item(0);
-                //     let newAxes = pad.axes;
-                //     console.log(axes);
-                //     console.log(newAxes);
-                //   }
-                // });
-
-                // // el.addEventListener("triggerchanged", function(event){
-                // //   console.log("trigger changed");
-                // //   console.log(event);
-                // // });
-
-                // el.addEventListener("trackpadmoved", function(event){
-                //   console.log("moved");
-                //   console.log(event);
-                // });
-
-                // el.addEventListener("triggerdown", function(event){
-                //   console.log("trigger down");
-                //   console.log(event);
-                // });
-
-                // el.addEventListener("triggerup", function(event){
-                //   console.log("trigger up");
-                //   console.log(event);
-                // });
-
             },
 
+            //just for movement (see moveToThumb)
             tick: function () {
-                // console.log(this.data.moving);
                 if (this.data.moving) {
-                    // console.log("moving");
-
                     let hands = document.querySelectorAll('[raycaster]');
                     let right = hands[1];
                     let dir = right.object3D.getWorldDirection();
                     let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
                     vec3d.normalize();
 
-                    // this.player = right.components.line.line;
                     let wrapper = document.querySelector("#camera-wrapper");
                     let pad = navigator.getGamepads().item(0);
                     let axes = pad.axes;
-                    console.log(axes)
                     let pos = wrapper.getAttribute("position");
 
                     let vz = 0;
@@ -149,95 +90,109 @@
                     pos.x -= vec3d.z * 0.1 * -vx - vec3d.x * 0.1 * vz;
                     pos.z -= vec3d.x * 0.1 * vx + vec3d.z * 0.1 * -vz;
 
-                    // pos.x -= axes[0]>0.5 || axes[0]<-0.5 ? vec3d.x * 0.1 : 0;
-                    // pos.z -= axes[1]>0.5 || axes[1]<-0.5 ? vec3d.z * 0.1 : 0;
                     wrapper.setAttribute("position", pos);
                     this.touchOnly = false;
                 }
             }
         });
-    </script>
-    <script>
+
+        //bullet component to change appearance and behaviour of the generated spheres
         AFRAME.registerComponent('bullet', {
+            //basic parameters of each bullet
             schema: {
-                color: { default: '#f00' },
-                size: { default: 0.05 },
-                speed: { default: 1 },
-                ttl: { default: 200 }
+                color: { default: '#f00' }, //bullet color
+                size: { default: 0.05 },    //buller size
+                speed: { default: 1 },      //bullet speed
+                ttl: { default: 200 }       //time to live (bullet is deleted if ttl hits 0 --> performance savings)
             },
 
+            //called when component is applied to entitiy
             init: function () {
                 let el = this.el;
                 let data = this.data;
 
-                //let camera = document.querySelector("#controller");
-                //let initPos = camera.getAttribute('position');
+                //get controller (left)
                 let hands = document.querySelectorAll('[raycaster]');
                 let left = hands[0];
+
+                //get conrtoller position and rotation
                 let pos = left.object3D.getWorldPosition();
                 let rot = left.object3D.getWorldDirection();
 
-                let rotNew = new THREE.Vector3(rot.x, rot.y, rot.z);
-                rotNew.normalize();
-                //console.log(initPos);
-                el.setAttribute("color", data.color);
-                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
-                el.setAttribute('position', { x: pos.x, y: pos.y, z: pos.z });
-                el.setAttribute('rotation', { x: rotNew.x, y: rotNew.y, z: rotNew.z });
-                el.setAttribute('class', 'collider');
-                //console.log(el.getAttribute('position'));
+                el.setAttribute("color", data.color);                                   //set bullet color
+                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size }); //set bullet scale
+                el.setAttribute('position', { x: pos.x, y: pos.y, z: pos.z });          //set bullet position
+                el.setAttribute('rotation', { x: rot.x, y: rot.y, z: rot.z });          //set bullet rotation
+                el.setAttribute('class', 'collider');                                   //set collider class for target intersection
             },
 
+            //called every frame
             tick: function () {
                 let el = this.el;
                 let data = this.data;
 
                 if (data.ttl == 0) {
-                    let scene = document.querySelector('a-scene');
-                    el.parentNode.removeChild(el);
-
+                    //delete this element, if ttl exceeded
+                    el.parentNode.removeChild(el); 
                 }
 
+                //get actual position and rotation
                 let actPos = el.getAttribute('position');
                 let rot = el.getAttribute('rotation');
 
+                //calculate new position
                 el.setAttribute('position', { x: actPos.x - rot.x * data.speed, y: actPos.y - rot.y * data.speed, z: actPos.z - rot.z * data.speed });
 
-
-                let camera = document.querySelector("#camera");
-                data.ttl -= 1
+                //decrement ttl
+                data.ttl -= 1;
             }
         });
 
-
+        //target component, that triggers events if shot at
         AFRAME.registerComponent('target', {
             schema: {
-                color: { default: '#f00' },
-                size: { default: 2 },
+                color: { default: '#f00' }, //target color
+                size: { default: 2 },       //target size
             },
 
+            //called when component is applied to entitiy
             init: function () {
                 let el = this.el;
                 let data = this.data;
 
-                el.setAttribute("color", data.color);
-                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });
-                el.setAttribute("position", { x: -10 + Math.random() * 20, y: 1 + Math.random() * 5, z: -Math.random() * 20 });
-
+                el.setAttribute("color", data.color);                                                                               //set target color
+                el.setAttribute('scale', { x: data.size, y: data.size, z: data.size });                                             //set target size
+                el.setAttribute("position", { x: -10 + Math.random() * 20, y: 1 + Math.random() * 5, z: -Math.random() * 20 });     //set tagret position random in a specific area
             },
 
+            //called every frame
             tick: function () {
                 let el = this.el;
                 let data = this.data;
 
+                //get all collider elements
                 let collidables = document.getElementsByClassName("collider");
+
+                //get target position
+                let tarPos = el.getAttribute('position');
+
+                //check for intersecting bullets
                 for (let x = 0; x < collidables.length; x++) {
+                    //get position of current element
                     let colPos = collidables[x].getAttribute('position');
-                    let tarPos = el.getAttribute('position');
+
+                    //intersection check is seprated to increase performance
+                    //check for intersection in x
                     if (colPos.x > tarPos.x - data.size / 2 && colPos.x < tarPos.x + data.size / 2) {
+                        //check for intersection in y
                         if (colPos.y > tarPos.y - data.size / 2 && colPos.y < tarPos.y + data.size / 2) {
+                            //check for intersection in z
                             if (colPos.z > tarPos.z - data.size / 2 && colPos.z < tarPos.z + data.size / 2) {
+                                //intersection!
+                                //current bullet is removed
                                 collidables[x].parentNode.removeChild(collidables[x]);
+
+                                //change target position and color
                                 this.recolor();
                                 this.relocate();
                             }
@@ -247,6 +202,7 @@
 
             },
 
+            //changes target position
             relocate: function () {
                 let el = this.el;
                 let data = this.data;
@@ -254,6 +210,7 @@
                 el.setAttribute("position", { x: -10 + Math.random() * 20, y: 1 + Math.random() * 5, z: -Math.random() * 20 });
             },
 
+            //changes target color
             recolor: function () {
                 let el = this.el;
                 let data = this.data;
