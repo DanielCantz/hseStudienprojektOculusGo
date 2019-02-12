@@ -11,6 +11,10 @@
         //refer to moveToThumb for movement documentation
         //for bullet generation see mousedown event (line 38)
         AFRAME.registerComponent("camera-movement", {
+            schema: {
+                shots: { default: 0 },  //number of shots fired
+
+            },
             init: function () {
                 let self = this;
                 let data = this.data;
@@ -21,7 +25,7 @@
                 let hands = document.querySelectorAll('[line]');
                 let right = hands[1];
 
-                this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
+                //this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
 
                 let axes = [0, 0];
                 this.touchOnly = true;
@@ -45,6 +49,8 @@
                         //append new bullet to the scene
                         let scene = document.querySelector('a-scene');
                         scene.appendChild(newBullet);
+
+                        data.shots += 1;
                     }
 
                     //changes checker value between true and false, every time it is run
@@ -133,7 +139,7 @@
 
                 if (data.ttl == 0) {
                     //delete this element, if ttl exceeded
-                    el.parentNode.removeChild(el); 
+                    el.parentNode.removeChild(el);
                 }
 
                 //get actual position and rotation
@@ -151,6 +157,7 @@
         //target component, that triggers events if shot at
         AFRAME.registerComponent('target', {
             schema: {
+                hits: { default: 0 },       //number of targets hit
                 color: { default: '#f00' }, //target color
                 size: { default: 2 },       //target size
             },
@@ -195,6 +202,7 @@
                                 //change target position and color
                                 this.recolor();
                                 this.relocate();
+                                data.hits += 1;
                             }
                         }
                     }
@@ -224,21 +232,97 @@
                 el.setAttribute("color", color);
             }
         });
+
+        //component that updates in game time
+        AFRAME.registerComponent('timer', {
+            schema: {
+                timestamp: { default: 0 },  //timestamp used to reference start time
+            },
+
+            //called when component is applied to entitiy
+            init: function () {
+                //gets actual time in seconds and saves it in timestamp
+                let seconds = new Date().getTime() / 1000;
+                this.data.timestamp = seconds;
+            },
+
+            //called every frame
+            tick: function () {
+                //gets actual time in seconds and displays the difference to the timestamp in the gui-time component
+                let seconds = new Date().getTime() / 1000;
+                let text = document.querySelector("#gui-time");
+                text.setAttribute('value', 'Time: ' + (Math.trunc(seconds - this.data.timestamp)) + 's');
+            }
+        });
+
+        //component that updates in accuracy
+        AFRAME.registerComponent('acctracker', {
+            //called every frame
+            tick: function () {
+                let data = this.data;
+                //gets numbers of shots fired
+                let shots = document.querySelector("#controller").getAttribute('camera-movement').shots;
+                //division by 0 is not possible!
+                if (shots != 0) {
+                    //gets number of target hits
+                    let hits = document.querySelector("#target").getAttribute('target').hits;
+                    //calculate accuracy and replace accuracy value in gui-accuracy component 
+                    let accuracy = Math.trunc(100 * (hits / shots));
+                    let text = document.querySelector("#gui-accuracy");
+                    text.setAttribute('value', 'Accuracy: ' + accuracy + '%');
+                }
+            }
+        });
+
+        //component that updates hits per minute
+        AFRAME.registerComponent('hpmtracker', {
+            //called every frame
+            tick: function () {
+                let data = this.data;
+                //gets number of target hits
+                let hits = document.querySelector("#target").getAttribute('target').hits;
+                //gets timestamp and calculates in game time
+                let timestamp = document.querySelector("#gui-time").getAttribute('timer').timestamp;
+                let timeDelta = new Date().getTime() / 1000;
+                timeDelta = Math.trunc(timeDelta - timestamp);
+                //calculates hpm and replaces hpm value in gui-hpm component
+                let hpm = hits / timeDelta;
+                let text = document.querySelector("#gui-hpm");
+                text.setAttribute('value', 'Hits per min: ' + hpm.toFixed(3));
+
+            }
+        });
     </script>
 </head>
 
 <body>
     <a-scene>
-        <a-entity id="camera-wrapper" position="0 0 0">
-            <a-camera id="camera" position="0 2 0"></a-camera>
 
-            <a-entity id="controller" camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable"
+
+        <a-entity id="camera-wrapper" position="0 0 0">
+            <a-camera>
+                <!-- position put it close-->
+                <!-- scale make it small to fit in your view -->
+                <a-entity position="0 -0.006 -0.5" scale="1 1 1">
+                    <a-plane id="gui-plane" position="0 -0.25 0" color="red" scale="0.6 0.2 0.01" opacity="0.5">
+                        <a-text id="gui-time" timer value="Time: " position="-0.5 0.4 0" scale="0.5 0.5"></a-text>
+                        <a-text id="gui-accuracy" accTracker value="Accuracy: 100%" position="-0.5 0.2 0"
+                            scale="0.5 0.5">
+                        </a-text>
+                        <a-text id="gui-hpm" hpmtracker value="Hits per min: " position="-0.5 0 0" scale="0.5 0.5">
+                        </a-text>
+                    </a-plane>
+                </a-entity>
+            </a-camera>
+
+            <a-entity id="controller" camera-movement id="leftHand" laser-controls="hand: left"
+                raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
+            <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable"
                 line="color: #118A7E"></a-entity>
-            <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
         </a-entity>
 
         <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
-        <a-box target></a-box>
+        <a-box id="target" target></a-box>
     </a-scene>
 </body>
 
