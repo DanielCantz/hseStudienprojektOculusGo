@@ -1,8 +1,27 @@
-<!-- Include A-Frame latest master distribution, via RawGit. -->
-<!-- Really should be in <head>; in CodePen body for simple viewing. -->
-<script src="https://rawgit.com/aframevr/aframe/master/dist/aframe-master.min.js"></script>
+<script src="../Assets/dist/aframe-master.min.js"></script>
 
-<!-- Components and shaders go after A-Frame, but before the scene declaration. -->
+<!-- 
+    For using shaders in A-Frame we recommend using the shaders from shadertoy.
+    Since those shaders are Fragement shaders only, we need a minimal vertex shader, which can be copied from below.
+    The vertex shader can be used for all shadertoy shaders.
+    We recommend using the Chrome browser, when using shaders, since the scene sometimes won´t render in firefox.
+
+    For performance reasons try to use easy shaders only.
+    With the example of fragmentShader2 we can clarify how to embed a shadertoy shader in AFrame:
+        The source code of the shader can be found at https://www.shadertoy.com/view/3dX3Wl.
+        There are small differences in the source code, to the code used in this example.
+        First we have the two rows defining timeMsec and vUv.
+            The timeMsec is a uniform variable, which takes any time as input, to regulate the time dependencies of the shader.
+            The vUv variable is used for texture mapping, defined by the vertex shader.
+        Second the mainImage Method + parameters must be replaced by a main Method without parameters.
+        Since we have the typical Aframe milliseconds and we need the time in seconds, the time must be devided by 1000.
+        Since we dont use the resolution for the shader mapping, we replace 'vec2 uv=fragCoord.xy/iResolution.xy;' by 'vec2 uv = -1.0 + 2.0 *vUv;'.
+        Since we save the time in the time variable, every occurence of iTime must be replaced by the new variable name.
+        Last we need to rename fragColor to gl_FragColor, which is the default output variable for the fragment shader.
+        After following those rules, we can finally map the shader onto our component.
+
+
+ -->
 <script>
     const vertexShader =
         `
@@ -13,149 +32,154 @@
             void main() {
                 vUv = uv;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-}
+            }
         `
 
+    //fragment shader biomass
+    const fragmentShader2 =
+        `
+            uniform float timeMsec;
+
+            varying vec2 vUv;
+
+            vec2 random2( vec2 p ) 
+            {
+                return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
+            }
+
+            void main()
+            {
+	            float time = timeMsec / 1000.0;
+	            vec2 uv = -1.0 + 2.0 *vUv;
+                float n=8.;
+                vec3 color=vec3(0.);
+                vec2 fst=fract(uv*n);
+                vec2 ist=floor(uv*n);
+                float m_dist=1.;
+    
+                for(int y=-1;y<=1;y++)
+                {
+ 		            for(int x=-1;x<=1;x++)
+    	            {
+                    	vec2 neighbor=vec2(x,y);  
+                        vec2 point=random2(ist+neighbor);
+                        point=0.5+0.5*sin(time*5.+6.2831*point);
+                        vec2 diff=neighbor+point-fst;
+                        float dist=length(diff);
+                        m_dist=min(m_dist,dist);
+    	            }
+                }
+    
+                color+=m_dist;
+
+                color+=1.-smoothstep(0.,0.1,m_dist);
+                
+                //this line differs from the original to make the shader more colorfull
+                gl_FragColor= vec4(color.x*0.1,color.y*0.3,color.z*0.5,1.);
+            }
+        `
+    
+    //fragment shader grid-glitch
     const fragmentShader1 =
         `
-varying vec2 vUv;
-uniform vec3 color;
-uniform float timeMsec; // A-Frame time in milliseconds.
+            varying vec2 vUv;
+            uniform vec3 color;
+            uniform float timeMsec; // A-Frame time in milliseconds.
 
-void main() {
-  float time = timeMsec / 1000.0; // Convert from A-Frame milliseconds to typical time in seconds.
-  // Use sin(time), which curves between 0 and 1 over time,
-  // to determine the mix of two colors:
-  //    (a) Dynamic color where 'R' and 'B' channels come
-  //        from a modulus of the UV coordinates.
-  //    (b) Base color.
-  //
-  // The color itself is a vec4 containing RGBA values 0-1.
-  gl_FragColor = mix(
-    vec4(mod(vUv , 0.05) * 20.0, 1.0, 1.0),
-    vec4(color, 1.0),
-    sin(time)
-  );
-}
-    `
+            void main() {
+                float time = timeMsec / 1000.0; // Convert from A-Frame milliseconds to typical time in seconds.
+                // Use sin(time), which curves between 0 and 1 over time,
+                // to determine the mix of two colors:
+                //    (a) Dynamic color where 'R' and 'B' channels come
+                //        from a modulus of the UV coordinates.
+                //    (b) Base color.
+                //
+                // The color itself is a vec4 containing RGBA values 0-1.
+                gl_FragColor = mix(
+                    vec4(mod(vUv , 0.05) * 20.0, 1.0, 1.0),
+                    vec4(color, 1.0),
+                    sin(time)
+                );
+            }
+        `
 
-    const fragmentShader2 =
-`
-uniform float timeMsec;
-
-varying vec2 vUv;
-
-vec2 random2( vec2 p ) 
-{
-    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-}
-
-void main()
-{
-    float time = timeMsec / 1000.0;
-	vec2 uv = -1.0 + 2.0 *vUv;
-    float n=15.;
-    vec3 color=vec3(0.);
-    vec2 fst=fract(uv*n);
-    vec2 ist=floor(uv*n);
-    float m_dist=1.;
     
-    for(int y=-1;y<=1;y++)
-    {
- 		for(int x=-1;x<=1;x++)
-    	{
-        	vec2 neighbor=vec2(x,y);  
-            vec2 point=random2(ist+neighbor);
-            point=0.5+0.5*sin(time*5.+6.2831*point);
-            vec2 diff=neighbor+point-fst;
-            float dist=length(diff);
-            m_dist=min(m_dist,dist);
-    	}
-    }
-    
-    color+=m_dist;
-    color+=1.-step(0.02,m_dist);
-    
-    gl_FragColor= vec4(color.x*0.1,color.y*0.3,color.z*0.5,1.);
-}
-`
 
-const fragmentShader3 =
-`
-    uniform float iTime;
-    uniform vec3 color;
-    varying vec2 vUv;
+    //fragment shader starfield (https://www.shadertoy.com/view/3dX3Wl)
+    const fragmentShader3 =
+        `
+            uniform float iTime;
+            uniform vec3 color;
+            varying vec2 vUv;
 
-    vec2 hash( vec2 p ) {
-        p = vec2( dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));
-        return fract(sin(p)*43758.5453);
-    }
+            vec2 hash( vec2 p ) {
+                p = vec2( dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));
+                return fract(sin(p)*43758.5453);
+            }
         
-    void main() {
-        float time = iTime / 1000.0;
-        vec2 uv = vUv;
-        
-        float scale = 20.0;
-        float radius = 0.01;
-        
-        vec4 starColor = vec4(0.0, 0.0, 0.0, 1.0);
-        
-        vec2 gridPosition = floor(uv * scale) / scale;
-        
-        vec2 randomOffset = hash(gridPosition) * 2.0 - 1.0;
-        randomOffset *= 0.5;
-        
-        vec2 localGridPositionCenter = fract(uv * scale) - 0.5;
-        
-        starColor.rgb += step(length(localGridPositionCenter + randomOffset), radius);
-        starColor.g *= (step(sin(time * randomOffset.x), 0.1) + 0.7);
-        starColor.b *= (step(sin(time * randomOffset.y), 0.1) + 0.7);
-        gl_FragColor = starColor;
-    }
-`
+            void main() {
+                float time = iTime / 1000.0;
+                vec2 uv = vUv;
 
+                float scale = 20.0;
+                float radius = 0.01;
+
+                vec4 starColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+                vec2 gridPosition = floor(uv * scale) / scale;
+        
+                vec2 randomOffset = hash(gridPosition) * 2.0 - 1.0;
+                randomOffset *= 0.5;
+        
+                vec2 localGridPositionCenter = fract(uv * scale) - 0.5;
+        
+                starColor.rgb += step(length(localGridPositionCenter + randomOffset), radius);
+                starColor.g *= (step(sin(time * randomOffset.x), 0.1) + 0.7);
+                starColor.b *= (step(sin(time * randomOffset.y), 0.1) + 0.7);
+                gl_FragColor = starColor;
+            }
+        `
+
+    //registrieren des grid-glitch shaders
     AFRAME.registerShader('grid-glitch', {
         schema: {
-            color: { type: 'color', is: 'uniform' },
-            timeMsec: { type: 'time', is: 'uniform' }
+            color: { type: 'color', is: 'uniform' },    //uniform for shader base color
+            timeMsec: { type: 'time', is: 'uniform' }   //uniform for time dependent shader
         },
 
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader1
+        vertexShader: vertexShader,         //link vertex shader
+        fragmentShader: fragmentShader1     //link fragment shader
     });
 
-    AFRAME.registerShader('test', {
+    //registrieren des biomass shaders
+    AFRAME.registerShader('biomass', {
         schema: {
-            timeMsec: { type: 'time', is: 'uniform' }
+            timeMsec: { type: 'time', is: 'uniform' }   //uniform for time dependent shader
         },
 
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader2
+        vertexShader: vertexShader,         //link vertex shader
+        fragmentShader: fragmentShader2     //link fragment shader
     });
 
-    AFRAME.registerShader('test2', {
+    //registrieren des sky shaders
+    AFRAME.registerShader('sky', {
         schema: {
-            iTime: { type: 'time', is: 'uniform' }
+            iTime: { type: 'time', is: 'uniform' }  //uniform for time dependent shader
         },
 
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader3
+        vertexShader: vertexShader,         //link vertex shader
+        fragmentShader: fragmentShader3     //link fragment shader
     });
 
 
 
 </script>
 
-<!-- Declaration of the A-Frame scene. -->
 <a-scene>
-    <!-- Black skybox at effectively infinite distance. -->
-    <!-- a-box is used instead of a-sky because it requires less processing than the sphere that a-sky generates. -->
-    <!-- Z scale is inverted so that the inside surface gets the color. -->
+    <!-- shader is attatched to entity by linking it in the material property as follows -->
+    <a-box material="shader:biomass" position="-2 1 -3" scale="2 2 2"></a-box>
 
-    <!-- Inside the black skybox, a box behind the previous one, 3 meters ahead. -->
-    <a-box material="shader:test" position="-2 1 -3" scale="2 2 2"></a-box>
+    <a-box material="shader:grid-glitch; color:blue" position="2 1 -3" scale="2 2 2"></a-box>
 
-    <a-box material="shader:grid-glitch; color: blue" position="2 1 -3" scale="2 2 2"></a-box>
-
-    <a-sky radius="5000"material="shader:test2"></a-sky>
+    <a-sky radius="5000" material="shader:sky"></a-sky>
 </a-scene>
