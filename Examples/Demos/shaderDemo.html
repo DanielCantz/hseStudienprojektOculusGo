@@ -1,4 +1,4 @@
-<script src="../Assets/dist/aframe-master.min.js"></script>
+<script src="../Assets/dist/aframe-v0.9.0.min.js"></script>
 
 <!-- 
     For using shaders in A-Frame we recommend using the shaders from shadertoy.
@@ -6,7 +6,7 @@
     The vertex shader can be used for all shadertoy shaders.
     We recommend using the Chrome browser, when using shaders, since the scene sometimes won´t render in firefox.
 
-    For performance reasons try to use easy shaders only.
+    For complexity reasons try to use easy shaders only.
     With the example of fragmentShader2 we can clarify how to embed a shadertoy shader in AFrame:
         The source code of the shader can be found at https://www.shadertoy.com/view/3dX3Wl.
         There are small differences in the source code, to the code used in this example.
@@ -38,47 +38,47 @@
     //fragment shader biomass
     const fragmentShader2 =
         `
-            uniform float timeMsec;
+uniform float timeMsec;
 
-            varying vec2 vUv;
+varying vec2 vUv;
 
-            vec2 random2( vec2 p ) 
-            {
-                return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-            }
+vec2 random2( vec2 p ) 
+{
+    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
+}
 
-            void main()
-            {
-	            float time = timeMsec / 1000.0;
-	            vec2 uv = -1.0 + 2.0 *vUv;
-                float n=8.;
-                vec3 color=vec3(0.);
-                vec2 fst=fract(uv*n);
-                vec2 ist=floor(uv*n);
-                float m_dist=1.;
+void main()
+{
+	float time = timeMsec / 1000.0;
+	vec2 uv = -1.0 + 2.0 *vUv;
+    float n=8.;
+    vec3 color=vec3(0.);
+    vec2 fst=fract(uv*n);
+    vec2 ist=floor(uv*n);
+    float m_dist=1.;
     
-                for(int y=-1;y<=1;y++)
-                {
- 		            for(int x=-1;x<=1;x++)
-    	            {
-                    	vec2 neighbor=vec2(x,y);  
-                        vec2 point=random2(ist+neighbor);
-                        point=0.5+0.5*sin(time*5.+6.2831*point);
-                        vec2 diff=neighbor+point-fst;
-                        float dist=length(diff);
-                        m_dist=min(m_dist,dist);
-    	            }
-                }
-    
-                color+=m_dist;
+    for(int y=-1;y<=1;y++)
+    {
+ 	    for(int x=-1;x<=1;x++)
+        {
+         	vec2 neighbor=vec2(x,y);  
+            vec2 point=random2(ist+neighbor);
+            point=0.5+0.5*sin(time*5.+6.2831*point);
+            vec2 diff=neighbor+point-fst;
+            float dist=length(diff);
+            m_dist=min(m_dist,dist);
+        }
+    }
 
-                color+=1.-smoothstep(0.,0.1,m_dist);
-                
-                //this line differs from the original to make the shader more colorfull
-                gl_FragColor= vec4(color.x*0.1,color.y*0.3,color.z*0.5,1.);
-            }
+    color+=m_dist;
+
+    color+=1.-smoothstep(0.,0.1,m_dist);
+    
+    //this line differs from the original to make the shader more colorfull
+    gl_FragColor= vec4(color.x*0.1,color.y*0.3,color.z*0.5,1.);
+}
         `
-    
+
     //fragment shader grid-glitch
     const fragmentShader1 =
         `
@@ -103,7 +103,7 @@
             }
         `
 
-    
+
 
     //fragment shader starfield (https://www.shadertoy.com/view/3dX3Wl)
     const fragmentShader3 =

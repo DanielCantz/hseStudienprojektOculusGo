@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <script src="../Assets/dist/aframe-master.min.js"></script>
+    <script src="../Assets/dist/aframe-v0.9.0.min.js"></script>
     <script src="../Assets/dist/aframe-environment-component.min.js"></script>
     <script src="../Assets/src/components/oculus-go-controls.js"></script>
 </head>
@@ -20,14 +20,12 @@
         <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2" animation__levitate="property: position; to: 0 2.2 -5; dir: alternate; dur: 2000; loop: true;"
             animation__scaleUp="property: scale; to: 2.3 2.3 2.3; dur: 300; startEvents: mouseenter; easing: easeOutQuad;"
             animation__scaleDown="property: scale; to: 2 2 2; dur: 300; startEvents: mouseleave; easing: easeOutQuad;"
-            animation__rotate="property: rotation; to: 360 405 45; dur: 2000; startEvents: click; easing: easeInOutQuad;">
+            animation__rotate="property: rotation; to: 360 405 45; dur: 2000; startEvents: click; easing: easeInOutQuad;"
+            material="src: #boxTexture; roughness: 100; metalness: 0"></a-box>>
         </a-box>
-
         <a-camera position="0 2 0">
             
         </a-camera>
-
-        
 
         <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
         <a-sound src="#neigh" position="0 2 -5" autoplay="true" loop="true" preload="auto" volume="10"></a-sound>
