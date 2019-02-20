@@ -117,14 +117,14 @@
 
                 //get controller (left)
                 let hands = document.querySelectorAll('[raycaster]');
-                    let usedHand = navigator.getGamepads().item(0).hand;
-                    let hand = null;
-                    if (usedHand == 'left') {
-                        hand = hands[0];
-                    }
-                    if (usedHand == 'right') {
-                        hand = hands[1];
-                    }
+                let usedHand = navigator.getGamepads().item(0).hand;
+                let hand = null;
+                if (usedHand == 'left') {
+                    hand = hands[0];
+                }
+                if (usedHand == 'right') {
+                    hand = hands[1];
+                }
 
                 //get conrtoller position and rotation
                 let pos = hand.object3D.getWorldPosition();

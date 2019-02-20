@@ -112,15 +112,12 @@
                 //get oculusGO controller 
                 let hands = document.querySelectorAll('[raycaster]');
                 let usedHand = navigator.getGamepads().item(0).hand;
-                console.log(hands[0]);
                 let hand = null;
                 if (usedHand == 'left') {
                     hand = hands[0];
-                    console.log('linke');
                 }
                 if (usedHand == 'right') {
                     hand = hands[1];
-                    console.log(hand);
                 }
 
                 //calculate distance between controller and grabbed object
