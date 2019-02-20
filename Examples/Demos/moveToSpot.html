@@ -17,21 +17,14 @@
           var defaultColor = el.getAttribute("material").color;
 
           el.addEventListener("mouseenter", function() {
-            console.log("Color change");
             el.setAttribute("color", data.color);
           });
 
           el.addEventListener("mouseleave", function() {
-            console.log("Color change");
             el.setAttribute("color", defaultColor);
           });
 
-          // el.addEventListener("triggerdown", function() {
-          //   console.log("Color triggerdown");
-          //   el.setAttribute("color", data.trigger);
-          // });
           el.addEventListener("mousedown", function() {
-            console.log("Color mousedown");
             el.setAttribute("color", data.mouse);
           });
         }
@@ -45,7 +38,6 @@
           let data = this.data;
           let el = this.el;
           el.addEventListener("mousedown", function(event) {
-            console.log("bla");
             let wrapper = document.querySelector("#camera-wrapper");
             let newPos = this.getAttribute("position");
             wrapper.setAttribute("position", newPos);

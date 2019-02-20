@@ -22,14 +22,6 @@
                 this.data.moving = false;
                 let moving = this.data.moving;
 
-                let hands = document.querySelectorAll('[line]');
-                let right = hands[1];
-
-                //this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
-
-                let axes = [0, 0];
-                this.touchOnly = true;
-
                 el.addEventListener("trackpaddown", function (event) {
                     self.data.moving = true;
                 });
@@ -62,8 +54,15 @@
             tick: function () {
                 if (this.data.moving) {
                     let hands = document.querySelectorAll('[raycaster]');
-                    let right = hands[1];
-                    let dir = right.object3D.getWorldDirection();
+                    let usedHand = navigator.getGamepads().item(0).hand;
+                    let hand = null;
+                    if (usedHand == 'left') {
+                        hand = hands[0];
+                    }
+                    if (usedHand == 'right') {
+                        hand = hands[1];
+                    }
+                    let dir = hand.object3D.getWorldDirection();
                     let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
                     vec3d.normalize();
 
@@ -97,7 +96,6 @@
                     pos.z -= vec3d.x * 0.1 * vx + vec3d.z * 0.1 * -vz;
 
                     wrapper.setAttribute("position", pos);
-                    this.touchOnly = false;
                 }
             }
         });
@@ -119,11 +117,18 @@
 
                 //get controller (left)
                 let hands = document.querySelectorAll('[raycaster]');
-                let left = hands[0];
+                    let usedHand = navigator.getGamepads().item(0).hand;
+                    let hand = null;
+                    if (usedHand == 'left') {
+                        hand = hands[0];
+                    }
+                    if (usedHand == 'right') {
+                        hand = hands[1];
+                    }
 
                 //get conrtoller position and rotation
-                let pos = left.object3D.getWorldPosition();
-                let rot = left.object3D.getWorldDirection();
+                let pos = hand.object3D.getWorldPosition();
+                let rot = hand.object3D.getWorldDirection();
 
                 el.setAttribute("color", data.color);                                   //set bullet color
                 el.setAttribute('scale', { x: data.size, y: data.size, z: data.size }); //set bullet scale
@@ -270,12 +275,14 @@
                     let accuracy = Math.trunc(100 * (hits / shots));
                     let text = document.querySelector("#gui-accuracy");
                     text.setAttribute('value', 'Accuracy: ' + accuracy + '%');
+                    text = document.querySelector("#gui-shots");
+                    text.setAttribute('value', 'Shots: ' + shots);
                 }
             }
         });
 
         //component that updates hits per minute
-        AFRAME.registerComponent('hpmtracker', {
+        AFRAME.registerComponent('hpstracker', {
             //called every frame
             tick: function () {
                 let data = this.data;
@@ -287,9 +294,8 @@
                 timeDelta = Math.trunc(timeDelta - timestamp);
                 //calculates hpm and replaces hpm value in gui-hpm component
                 let hpm = hits / timeDelta;
-                let text = document.querySelector("#gui-hpm");
-                text.setAttribute('value', 'Hits per min: ' + hpm.toFixed(3));
-
+                let text = document.querySelector("#gui-hps");
+                text.setAttribute('value', 'Hits per sec: ' + hpm.toFixed(3));
             }
         });
     </script>
@@ -307,10 +313,12 @@
                     <!-- GUI Plane with text -->
                     <a-plane id="gui-plane" position="0 -0.25 0" color="red" scale="0.6 0.2 0.01" opacity="0.5">
                         <a-text id="gui-time" timer value="Time: " position="-0.5 0.4 0" scale="0.5 0.5"></a-text>
-                        <a-text id="gui-accuracy" accTracker value="Accuracy: 100%" position="-0.5 0.2 0"
+                        <a-text id="gui-accuracy" acctracker value="Accuracy: 100%" position="-0.5 0.2 0"
                             scale="0.5 0.5">
                         </a-text>
-                        <a-text id="gui-hpm" hpmtracker value="Hits per min: " position="-0.5 0 0" scale="0.5 0.5">
+                        <a-text id="gui-hps" hpstracker value="Hits per sec: 0" position="-0.5 0 0" scale="0.5 0.5">
+                        </a-text>
+                        <a-text id="gui-shots" acctracker value="Shots: 0" position="-0.5 -0.2 0" scale="0.5 0.5">
                         </a-text>
                     </a-plane>
                 </a-entity>

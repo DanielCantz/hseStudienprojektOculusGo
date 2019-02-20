@@ -14,14 +14,6 @@
                 this.data.moving = false;
                 let moving = this.data.moving;
 
-                let hands = document.querySelectorAll('[line]');
-                let right = hands[1];
-
-                this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
-
-                let axes = [0, 0];
-                this.touchOnly = true;
-
                 el.addEventListener("trackpaddown", function (event) {
                     self.data.moving = true;
                 });
@@ -35,8 +27,16 @@
                 if (this.data.moving) {
 
                     let hands = document.querySelectorAll('[raycaster]');
-                    let right = hands[1];
-                    let dir = right.object3D.getWorldDirection();
+                    let usedHand = navigator.getGamepads().item(0).hand;
+                    let hand = null;
+                    if (usedHand == 'left') {
+                        hand = hands[0];
+                    }
+                    if (usedHand == 'right') {
+                        hand = hands[1];
+                    }
+
+                    let dir = hand.object3D.getWorldDirection();
                     let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
                     vec3d.normalize();
 
@@ -75,7 +75,7 @@
             }
         });
 
-        
+
         //add 'grabbableobject' component, which defines if a component can be grabbed
         AFRAME.registerComponent("grabbableobject", {
             //called when component is applied to entitiy
@@ -109,14 +109,24 @@
                 let el = this.el;
                 let data = this.data;
 
-                //get oculusGO controller (left) 
+                //get oculusGO controller 
                 let hands = document.querySelectorAll('[raycaster]');
-                let left = hands[0];
+                let usedHand = navigator.getGamepads().item(0).hand;
+                console.log(hands[0]);
+                let hand = null;
+                if (usedHand == 'left') {
+                    hand = hands[0];
+                    console.log('linke');
+                }
+                if (usedHand == 'right') {
+                    hand = hands[1];
+                    console.log(hand);
+                }
 
                 //calculate distance between controller and grabbed object
-                let posRef = left.object3D.getWorldPosition();
+                let posRef = hand.object3D.getWorldPosition();
                 let posObj = el.getAttribute("position");
-                let distance = Math.abs(Math.sqrt(Math.pow(posRef.x - posObj.x, 2) + Math.pow(posRef.y - posObj.y, 2) + Math.pow(posRef.z - posObj.z, 2)));
+                let distance = Math.sqrt(Math.pow(posRef.x - posObj.x, 2) + Math.pow(posRef.y - posObj.y, 2) + Math.pow(posRef.z - posObj.z, 2));
 
                 //overwrite distance in schema
                 data.distance = distance;
@@ -127,13 +137,19 @@
                 let el = this.el;
                 let data = this.data;
 
-                //get oculusGO controller (left) 
+                //get oculusGO controller
                 let hands = document.querySelectorAll('[raycaster]');
-                let left = hands[0];
+                let usedHand = navigator.getGamepads().item(0).hand;
+                if (usedHand == 'left') {
+                    hand = hands[0];
+                }
+                if (usedHand == 'right') {
+                    hand = hands[1];
+                }
 
                 //get rotation and world position of controller
-                let rot = left.object3D.getWorldDirection();
-                let posRef = left.object3D.getWorldPosition();
+                let rot = hand.object3D.getWorldDirection();
+                let posRef = hand.object3D.getWorldPosition();
 
                 //update new object position 
                 el.setAttribute('position', { x: posRef.x - rot.x * data.distance, y: posRef.y - rot.y * data.distance, z: posRef.z - rot.z * data.distance })
@@ -148,8 +164,8 @@
         <a-entity id="camera-wrapper" position="0 0 0">
             <a-camera id="camera" position="0 2 0"></a-camera>
 
-            <a-entity id="controller" camera-movement id="leftHand" laser-controls="hand: left"
-                raycaster="objects: .collidable" line="color: #118A7E"></a-entity>
+            <a-entity camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable"
+                line="color: #118A7E"></a-entity>
             <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable"
                 line="color: #118A7E"></a-entity>
         </a-entity>

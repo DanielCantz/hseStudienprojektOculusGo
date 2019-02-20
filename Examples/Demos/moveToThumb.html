@@ -1,180 +1,126 @@
 <html>
-  <head>
-    <script src="../Assets/dist/aframe-v0.9.0.min.js"></script>
-    <script src="../Assets/dist/aframe-environment-component.min.js"></script>
 
-    <script>
-      AFRAME.registerComponent("oculus-go-debug-component", {
-        schema: {
-          color: { default: "red" },
-          trigger: { default: "green" },
-          mouse: { default: "#ffffff" }
-        },
+<head>
+  <script src="../Assets/dist/aframe-v0.9.0.min.js"></script>
+  <script src="../Assets/dist/aframe-environment-component.min.js"></script>
 
-        init: function() {
-          var data = this.data;
-          var el = this.el; // <a-box>
-          var defaultColor = el.getAttribute("material").color;
+  <script>
+    AFRAME.registerComponent("oculus-go-debug-component", {
+      schema: {
+        color: { default: "red" },
+        trigger: { default: "green" },
+        mouse: { default: "#ffffff" }
+      },
 
-          el.addEventListener("mouseenter", function() {
-            console.log("Color change");
-            el.setAttribute("color", data.color);
-          });
+      init: function () {
+        var data = this.data;
+        var el = this.el; // <a-box>
+        var defaultColor = el.getAttribute("material").color;
 
-          el.addEventListener("mouseleave", function() {
-            console.log("Color change");
-            el.setAttribute("color", defaultColor);
-          });
+        el.addEventListener("mouseenter", function () {
+          el.setAttribute("color", data.color);
+        });
 
-          // el.addEventListener("triggerdown", function() {
-          //   console.log("Color triggerdown");
-          //   el.setAttribute("color", data.trigger);
-          // });
-          el.addEventListener("mousedown", function() {
-            console.log("Color mousedown");
-            el.setAttribute("color", data.mouse);
-          });
-        }
-      });
-    </script>
+        el.addEventListener("mouseleave", function () {
+          el.setAttribute("color", defaultColor);
+        });
 
-    <script>
-      AFRAME.registerComponent("camera-movement", {
-        
+        el.addEventListener("mousedown", function () {
+          el.setAttribute("color", data.mouse);
+        });
+      }
+    });
+  </script>
 
-        init: function() {
-          let self = this;
-          let data = this.data;
-          let el = this.el;
-          this.data.moving = false;
-          let moving = this.data.moving;
-          
-          let hands = document.querySelectorAll('[line]');
-          let right = hands[1];
+  <script>
+    AFRAME.registerComponent("camera-movement", {
 
-          console.log(right);
-          // let line = right.components.line;
-          // console.log(line);
-          // this.player = right.components.line.line;
 
-          this.player = AFRAME.scenes[0].querySelector('[raycaster]').components.raycaster;
-          console.log(this.player);
+      init: function () {
+        let self = this;
+        let data = this.data;
+        let el = this.el;
+        this.data.moving = false;
+        let moving = this.data.moving;
 
-          let axes = [0, 0];
-          this.touchOnly = true;
+        el.addEventListener("trackpaddown", function (event) {
+          self.data.moving = true;
+        });
 
-          el.addEventListener("trackpaddown", function(event) {
-            // console.log("trackpad down");
-            //console.log(this.moving);
-            self.data.moving = true;
+        el.addEventListener("trackpadup", function (event) {
+          self.data.moving = false;
+        });
 
-          });
+      },
 
-          el.addEventListener("trackpadup", function(event) {
-            // console.log("trackpad up");
-            // console.log(event);
-            self.data.moving = false;
-          });
-          
-        },
-
-        tick: function() {
-          // console.log(this.data.moving);
-          if(this.data.moving){
-            // console.log("moving");
-
-            let hands = document.querySelectorAll('[raycaster]');
-            let right = hands[1];
-            let dir = right.object3D.getWorldDirection();
-            let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
-            vec3d.normalize();
-
-            // this.player = right.components.line.line;
-            let wrapper = document.querySelector("#camera-wrapper");
-            let pad = navigator.getGamepads().item(0);
-            let axes = pad.axes;
-            console.log(axes)
-            let pos = wrapper.getAttribute("position");
-
-            let vz = 0;
-            let vx = 0;
-
-            let deadzone = 0.3;
-
-            if (axes[1] > deadzone) {
-              vz = 1;
-            }
-
-            if (axes[1] < -deadzone){
-              vz = -1;
-            }
-
-            if (axes[0] > deadzone){
-              vx = 1;
-            }
-
-            if (axes[0] < -deadzone){
-              vx = -1;
-            }
-            
-            pos.x -= vec3d.z * 0.1 * -vx - vec3d.x * 0.1 * vz;
-            pos.z -= vec3d.x * 0.1 * vx + vec3d.z * 0.1 * -vz;
-
-            // pos.x -= axes[0]>0.5 || axes[0]<-0.5 ? vec3d.x * 0.1 : 0;
-            // pos.z -= axes[1]>0.5 || axes[1]<-0.5 ? vec3d.z * 0.1 : 0;
-            wrapper.setAttribute("position", pos);
-            this.touchOnly = false;
+      tick: function () {
+        if (this.data.moving) {
+          let usedHand = navigator.getGamepads().item(0).hand;
+          let hands = document.querySelectorAll('[raycaster]');
+          let hand = null;
+          if (usedHand == 'left') {
+            hand = hands[0];
           }
+          if (usedHand == 'right') {
+            hand = hands[1];
+          }
+
+          let dir = hand.object3D.getWorldDirection();
+          let wrapper = document.querySelector("#camera-wrapper");
+          let pad = navigator.getGamepads().item(0);
+          let axes = pad.axes;
+          let pos = wrapper.getAttribute("position");
+
+          let vz = 0;
+          let vx = 0;
+
+          let deadzone = 0.3;
+
+          if (axes[1] > deadzone) {
+            vz = 1;
+          }
+
+          if (axes[1] < -deadzone) {
+            vz = -1;
+          }
+
+          if (axes[0] > deadzone) {
+            vx = 1;
+          }
+
+          if (axes[0] < -deadzone) {
+            vx = -1;
+          }
+
+          pos.x -= dir.z * 0.1 * -vx - dir.x * 0.1 * vz;
+          pos.z -= dir.x * 0.1 * vx + dir.z * 0.1 * -vz;
+
+          wrapper.setAttribute("position", pos);
         }
-      });
+      }
+    });
 
-      AFRAME.registerComponent("mover", {
-        init: function() {
-          let data = this.data;
-          let el = this.el;
-          el.addEventListener("mousedown", function(event) {
-            console.log("a");
-          });
-        }
-      });
+  </script>
+</head>
 
-      
-    </script>
-  </head>
+<body>
+  <a-scene>
+    <a-entity id="camera-wrapper" position="0 0 0">
+      <a-camera> </a-camera>
 
-  <body>
-    <a-scene>
-      <a-entity id="camera-wrapper" position="0 0 0">
-        <a-camera> </a-camera>
+      <a-entity camera-movement id="leftHand" laser-controls="hand: left" raycaster="objects: .collidable"
+        line="color: #118A7E"></a-entity>
+      <a-entity camera-movement id="rightHand" laser-controls="hand: right" raycaster="objects: .collidable"
+        line="color: #118A7E"></a-entity>
+    </a-entity>
 
-        <a-entity
-          camera-movement
-          id="leftHand"
-          laser-controls="hand: left"
-          raycaster="objects: .collidable"
-          line="color: #118A7E"
-        ></a-entity>
-        <a-entity
-          camera-movement
-          id="rightHand"
-          laser-controls="hand: right"
-          raycaster="objects: .collidable"
-          line="color: #118A7E"
-        ></a-entity>
-      </a-entity>
+    <a-box class="collidable" oculus-go-debug-component color="blue" position="0 2 -5" scale="2 2 2"></a-box>
 
-      <a-box
-        class="collidable"
-        oculus-go-debug-component
-        color="blue"
-        position="0 2 -5"
-        scale="2 2 2"
-      ></a-box>
+    <!-- <a-entity ray-caster="objects: [mixin='box']" laser-controls oculus-go-controls></a-entity> -->
+    <!-- <a-entity ="hand: right"></a-entity> -->
 
-      <!-- <a-entity ray-caster="objects: [mixin='box']" laser-controls oculus-go-controls></a-entity> -->
-      <!-- <a-entity ="hand: right"></a-entity> -->
+    <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+  </a-scene>
+</body>
 
-      <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
-    </a-scene>
-  </body>
 </html>
