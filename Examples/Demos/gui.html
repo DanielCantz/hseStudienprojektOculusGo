@@ -89,8 +89,8 @@
           <!-- scale make it small to fit in your view -->
           <a-entity position="0 -0.006 -0.5" scale="1 1 1">
             <a-plane id="gui-plane" position="0 -0.25 0" color="red" scale="0.6 0.2 0.01" opacity="0.5">
-              <a-text id="gui-text" value="Hello Player!" position="-0.5 0.4 0" scale="0.5 0.5"></a-text>
-              <a-text id="gui-text-spot" value="You are at Spot: 0" position="-0.5 0.2 0" scale="0.5 0.5"></a-text>
+              <a-text id="gui-text" value="Hello Player!" position="-0.5 0.4 0" scale="0.5 0.5" font="../Assets/fonts/Roboto-msdf.json"></a-text>
+              <a-text id="gui-text-spot" value="You are at Spot: 0" position="-0.5 0.2 0" scale="0.5 0.5" font="../Assets/fonts/Roboto-msdf.json"></a-text>
             </a-plane>
           </a-entity>
         </a-camera>
@@ -123,20 +123,20 @@
 
       <a-sphere position="-5 2 15" scale="1 1 1" class="collidable spot" spot="number: 1">
         <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
-          <a-text id="spot-1" color="#FF0" position="-1 0 0" value="1" scale="10 10 10"></a-text>
-          <a-text id="spot-11" color="#FF0" position="1 0 0" rotation="0 180 0" value="1" scale="10 10 10"></a-text>
+          <a-text id="spot-1" color="#FF0" position="-1 0 0" value="1" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
+          <a-text id="spot-11" color="#FF0" position="1 0 0" rotation="0 180 0" value="1" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
         </a-entity>
       </a-sphere>
       <a-sphere position="15 2 -5" scale="1 1 1" class="collidable spot" spot="number: 2">
           <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
-              <a-text id="spot-2" color="#FF0" position="-1 0 0" value="2" scale="10 10 10"></a-text>
-              <a-text id="spot-22" color="#FF0" position="1 0 0" rotation="0 180 0" value="2" scale="10 10 10"></a-text>
+              <a-text id="spot-2" color="#FF0" position="-1 0 0" value="2" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
+              <a-text id="spot-22" color="#FF0" position="1 0 0" rotation="0 180 0" value="2" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
             </a-entity>
       </a-sphere>
       <a-sphere position="0 2 -15" scale="1 1 1" class="collidable spot" spot="number: 3">
           <a-entity position="0 3 0" animation="property: rotation; dur: 3000; fill: forwards; to: 0 -360 0; loop: true; easing: linear;">
-              <a-text id="spot-3" color="#FF0" position="-1 0 0" value="3" scale="10 10 10"></a-text>
-              <a-text id="spot-33" color="#FF0" position="1 0 0" rotation="0 180 0" value="3" scale="10 10 10"></a-text>
+              <a-text id="spot-3" color="#FF0" position="-1 0 0" value="3" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
+              <a-text id="spot-33" color="#FF0" position="1 0 0" rotation="0 180 0" value="3" scale="10 10 10" font="../Assets/fonts/Roboto-msdf.json"></a-text>
             </a-entity>
         </a-sphere>
 
