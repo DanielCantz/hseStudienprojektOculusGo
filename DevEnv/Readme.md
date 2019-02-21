@@ -13,12 +13,7 @@ Um die Oculus Go auf einem verbundenen Computer debuggen zu können müssen zun�
 
 ## ADB Tool Installieren
 
-For live video debugging adb tool is required. You may install adb tool with installation of Android Studio [link]
-
-If you just want to install adb tools without android studio download and install [tools] from this [link]. After installation run [tool insaller] from admin cmd and run 
-```
-install platform-tools android28???
-```
+Für live video debugging ist das adb tool notwendig. Es kann zusammen mit Android Studio installiert oder separat mit Android Studio Platform Tools.
 
 
 
