@@ -52,9 +52,9 @@
 
             //just for movement (see moveToThumb)
             tick: function () {
-                if (this.data.moving) {
-                    let hands = document.querySelectorAll('[raycaster]');
+               if (this.data.moving) {
                     let usedHand = navigator.getGamepads().item(0).hand;
+                    let hands = document.querySelectorAll('[raycaster]');
                     let hand = null;
                     if (usedHand == 'left') {
                         hand = hands[0];
@@ -62,10 +62,8 @@
                     if (usedHand == 'right') {
                         hand = hands[1];
                     }
-                    let dir = hand.object3D.getWorldDirection();
-                    let vec3d = new THREE.Vector3(dir.x, dir.y, dir.z);
-                    vec3d.normalize();
 
+                    let dir = hand.object3D.getWorldDirection();
                     let wrapper = document.querySelector("#camera-wrapper");
                     let pad = navigator.getGamepads().item(0);
                     let axes = pad.axes;
@@ -92,8 +90,50 @@
                         vx = -1;
                     }
 
-                    pos.x -= vec3d.z * 0.1 * -vx - vec3d.x * 0.1 * vz;
-                    pos.z -= vec3d.x * 0.1 * vx + vec3d.z * 0.1 * -vz;
+                    pos.x -= dir.z * 0.1 * -vx - dir.x * 0.1 * vz;
+                    pos.z -= dir.x * 0.1 * vx + dir.z * 0.1 * -vz;
+
+                    wrapper.setAttribute("position", pos);
+                }if (this.data.moving) {
+                    let usedHand = navigator.getGamepads().item(0).hand;
+                    let hands = document.querySelectorAll('[raycaster]');
+                    let hand = null;
+                    if (usedHand == 'left') {
+                        hand = hands[0];
+                    }
+                    if (usedHand == 'right') {
+                        hand = hands[1];
+                    }
+
+                    let dir = hand.object3D.getWorldDirection();
+                    let wrapper = document.querySelector("#camera-wrapper");
+                    let pad = navigator.getGamepads().item(0);
+                    let axes = pad.axes;
+                    let pos = wrapper.getAttribute("position");
+
+                    let vz = 0;
+                    let vx = 0;
+
+                    let deadzone = 0.3;
+
+                    if (axes[1] > deadzone) {
+                        vz = 1;
+                    }
+
+                    if (axes[1] < -deadzone) {
+                        vz = -1;
+                    }
+
+                    if (axes[0] > deadzone) {
+                        vx = 1;
+                    }
+
+                    if (axes[0] < -deadzone) {
+                        vx = -1;
+                    }
+
+                    pos.x -= dir.z * 0.1 * -vx - dir.x * 0.1 * vz;
+                    pos.z -= dir.x * 0.1 * vx + dir.z * 0.1 * -vz;
 
                     wrapper.setAttribute("position", pos);
                 }
