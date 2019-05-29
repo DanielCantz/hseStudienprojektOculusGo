@@ -38,7 +38,7 @@ Mit Visual Studio Code ist es möglich mit Hilfe des Plugins Live Server eine We
 Öffnen sie die Erweiterungen Ansich in VS Code und installieren sie Live Server. von Ritwick Dey.
 
 Zum erleichterten Aufruf der Webseite in der Oculus Go ändern wir den Standard Port des Live Server auf Port 80:
-Drücken sie `strg+,` um die Einstellungen zu öffnen. Suchen sie dort nach `Liver Server Port` und wählen sie dann `in "settings.json" bearbeiten`. Dort ersetzen sie dann den Standardport 5050 durch 80.
+Drücken sie `strg+,` um die Einstellungen zu öffnen. Suchen sie dort nach `Liver Server Port` und wählen sie dann `in "settings.json" bearbeiten`. Dort ersetzen sie dann den Standardport 5500 durch 80.
 
 Damit der Port 80 nun auch nach außen hin, also für die Oculus Go, sichtbar ist müssen wir ihn noch in der Firewall freischalten. Dazu öffnen wir in den Systemeinstellungen die Firewall Einstellungen >> Erweiterte Einstellungen. Hier richten wir nun eine neue eingehende Regel ein:
 > Regeltyp: Port
